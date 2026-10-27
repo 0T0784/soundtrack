@@ -30,7 +30,7 @@
             "file": "audio/disc1/01_曲名.wav",  ← 自動
             "title": "曲名",                    ← 自動（name があれば name、なければファイルのタグ、それも無ければファイル名）
             "name": "",                         ← 編集OK: 曲名を手動で付ける（track01.ogg などの曲に。空 → 自動の曲名）
-            "duration": 105,                    ← 自動（秒）
+            "duration": 105.32,                 ← 自動（秒。シークバーや曲リストの時間はこの値を使う）
             "composer": "",                     ← 編集OK: 空 → default_composer
             "arrange": false,                   ← 編集OK: true でアレンジ曲（Arrange バッジ表示）
             "original": "",                     ← 編集OK: 原作名（arrange が true のときだけ表示）
@@ -90,8 +90,10 @@
   python make_tracks.py --images my_images   # 画像フォルダ名を変えたい場合
   曲や画像を追加・変更したら再実行する。
   ※ HTML は meta.json を読み込むため、ファイルを直接ダブルクリックして開く（file://）と動きません。
-    GitHub Pages などに置くか、このフォルダで  python -m http.server  を実行して
-    http://localhost:8000/soundtrack.html を開いてください。
+    GitHub Pages などに置くか、このフォルダで  python serve.py  を実行して
+    http://localhost:8000/ を開いてください（index.html が開きます）。
+    （python -m http.server は音声のシークに必要な Range リクエストに対応しておらず、曲の長さやシークバーが
+      ずれる原因になるので、付属の serve.py を使ってください）
 """
 import argparse, copy, csv, json, re, sys, unicodedata
 from pathlib import Path
@@ -264,7 +266,7 @@ for g in groups:
         tracks.append({"file": src,
                        "title": c["name"] or auto,
                        "name": c["name"],
-                       "duration": round(a.info.length),
+                       "duration": round(a.info.length, 2),
                        "composer": c["composer"], "arrange": bool(c["arrange"]),
                        "original": c["original"], "original_song": c["original_song"]})
     if tracks:
