@@ -28,7 +28,8 @@
         "tracks": [
           {
             "file": "audio/disc1/01_曲名.wav",  ← 自動
-            "title": "曲名",                    ← 自動（ファイルのタグ、なければファイル名）
+            "title": "曲名",                    ← 自動（name があれば name、なければファイルのタグ、それも無ければファイル名）
+            "name": "",                         ← 編集OK: 曲名を手動で付ける（track01.ogg などの曲に。空 → 自動の曲名）
             "duration": 105,                    ← 自動（秒）
             "composer": "",                     ← 編集OK: 空 → default_composer
             "arrange": false,                   ← 編集OK: true でアレンジ曲（Arrange バッジ表示）
@@ -51,13 +52,19 @@
       python make_tracks.py -i
         → 曲の番号（例: 3 / 1,3 / 2-4 / all）を入力 → Composer、アレンジ曲か(y/n)、原作名、原曲名 を順に入力
         → Enter だけで「変更なし」、 - だけを入力すると「空にする」
+  方法C) CSV で一括設定（track01.ogg 〜 など、全曲に名前・Composer・アレンジ情報を付けるとき便利）
+      python make_tracks.py --export-csv tracks.csv   # 全曲の一覧を CSV に書き出す（Excel / メモ帳で編集）
+      （tracks.csv の name / composer / arrange / original / original_song 列を埋めて保存。file 列は変えない）
+      python make_tracks.py --import-csv tracks.csv   # CSV の内容を反映して meta.json を出力
+      ・CSV の内容がそのまま反映される（空欄 = 空にする）。original / original_song が入っている行は arrange 欄が false でも true になる
+      ・CSV に載っていない曲は変更されない。文字コードは UTF-8（BOM 付き）
   方法B) コマンドで直接指定
       python make_tracks.py --track "disc2/01_曲名.wav" arrange=true original="東方紅魔郷" original_song="明治十七年の上海アリス"
       python make_tracks.py --track disc2:3 composer="別の作曲者"     # Disc 2 の3曲目
       python make_tracks.py --track disc2 arrange=true                # Disc 2 の全曲（disc2:* でも同じ）
       ・曲の指定: ファイルのパス（末尾だけでも可）/ 曲名 / disc2:3（Discの何曲目か）/ disc2 または disc2:*（Discの全曲）
         複数の曲に当てはまるときはエラーになり、候補が表示される
-      ・キー: composer / arrange(true・false) / original(原作名) / original_song(原曲名)。1つの --track に複数並べてよい
+      ・キー: name(曲名) / composer / arrange(true・false) / original(原作名) / original_song(原曲名)。1つの --track に複数並べてよい
       ・original か original_song を入れて arrange を指定しなかった場合は、arrange=true を自動で付ける
       ・値を空にするには  original=  のように右辺を空にする。--track は何度でも書ける
   ※ meta.json はこの設定を反映したうえで上書き生成される
@@ -86,7 +93,7 @@
     GitHub Pages などに置くか、このフォルダで  python -m http.server  を実行して
     http://localhost:8000/soundtrack.html を開いてください。
 """
-import argparse, copy, json, re, sys, unicodedata
+import argparse, copy, csv, json, re, sys, unicodedata
 from pathlib import Path
 from mutagen import File
 
@@ -102,6 +109,8 @@ ap.add_argument("--icon", action="append", default=[], metavar="KEY=PATH",
                 help="画像を直接指定（例: staffroll=images/sr.png）。何度でも指定可")
 ap.add_argument("--track", action="append", nargs="+", default=[], metavar="ARG",
                 help="曲の属性を設定: --track 曲の指定 KEY=VALUE ...（例: --track disc2:1 arrange=true）")
+ap.add_argument("--export-csv", metavar="PATH", help="全曲の属性を CSV に書き出す（Excel 等で一括編集用）")
+ap.add_argument("--import-csv", metavar="PATH", help="CSV の内容を曲の属性に反映する（--export-csv で作った形式）")
 ap.add_argument("-i", "--interactive", action="store_true", help="対話モードで曲の属性を設定")
 args = ap.parse_args()
 root = BASE / args.audio
@@ -145,7 +154,7 @@ if old_path:
     cfg["images"]["emblem"] = im0.get("emblem", "")
     cfg["images"]["cover"] = im0.get("cover", "")
     pick = lambda m: {k: m.get(k, v) for k, v in
-                      (("composer", ""), ("arrange", False), ("original", ""), ("original_song", ""))}
+                      (("name", ""), ("composer", ""), ("arrange", False), ("original", ""), ("original_song", ""))}
     if isinstance(data.get("discs"), list):                     # 新形式
         for d in data["discs"]:
             disc_cfg[d["id"]] = {"icon": d.get("icon", ""), "cover": d.get("cover", "")}
@@ -233,7 +242,7 @@ if others:
     print("※ discN 以外のフォルダは別タブとして末尾に追加します:", ", ".join(p.name for p in others))
 groups = discs_dirs + others or [root]
 
-out_discs, seen, new_tracks = [], set(), 0
+out_discs, seen, new_tracks, auto_titles = [], set(), 0, {}
 for g in groups:
     tracks = []
     for f in sorted(g.iterdir(), key=lambda p: p.name):
@@ -247,11 +256,14 @@ for g in groups:
         if key in track_cfg:
             c = track_cfg[key]
         else:                                  # 新しい曲 → 雛形（タグにComposerがあれば初期値に）
-            c = {"composer": tag(a, ("TCOM", "composer", "\xa9wrt")) or "",
+            c = {"name": "", "composer": tag(a, ("TCOM", "composer", "\xa9wrt")) or "",
                  "arrange": False, "original": "", "original_song": ""}
             new_tracks += 1
+        auto = tag(a, ("TIT2", "title", "\xa9nam")) or strip_num(f.stem)
+        auto_titles[src] = auto
         tracks.append({"file": src,
-                       "title": tag(a, ("TIT2", "title", "\xa9nam")) or strip_num(f.stem),
+                       "title": c["name"] or auto,
+                       "name": c["name"],
                        "duration": round(a.info.length),
                        "composer": c["composer"], "arrange": bool(c["arrange"]),
                        "original": c["original"], "original_song": c["original_song"]})
@@ -266,7 +278,7 @@ for g in groups:
         print(f"{g.name} → {name}: {len(tracks)}曲")
 
 # ---------- 曲ごとの属性の設定（--track / -i） ----------
-FIELDS = {"composer": "composer", "arrange": "arrange", "original": "original", "orig": "original",
+FIELDS = {"name": "name", "title": "name", "composer": "composer", "arrange": "arrange", "original": "original", "orig": "original",
           "original_song": "original_song", "song": "original_song"}
 TRUE = {"true", "1", "yes", "y", "on", "はい", "あり", "○"}
 FALSE = {"false", "0", "no", "n", "off", "いいえ", "なし", "×", ""}
@@ -311,7 +323,46 @@ def set_attrs(t, kv):
         print(f"  （original/original_song が指定されたので arrange=true にしました: {t['file']}）")
     for k, v in kv.items():
         t[k] = to_bool(v) if k == "arrange" else str(v)
+    if "name" in kv:                                           # name が空なら自動の曲名に戻る
+        t["title"] = t["name"] or auto_titles.get(t["file"], t["title"])
     print("設定:", t["file"], " ", ", ".join(f"{k}={t[k]!r}" for k in kv))
+
+
+# ---------- CSV で一括設定（--import-csv / --export-csv） ----------
+CSV_COLS = ["file", "name", "composer", "arrange", "original", "original_song"]
+
+def import_csv(path):
+    p = Path(path)
+    if not p.is_file():
+        sys.exit(f"CSV が見つかりません: {path}")
+    n = 0
+    with p.open(encoding="utf-8-sig", newline="") as fp:
+        for row in csv.DictReader(fp):
+            f = nfc((row.get("file") or "").strip())
+            if not f: continue
+            hit = [t for _, t in all_tracks() if nfc(t["file"]) == f]
+            if not hit:
+                print(f"※ CSV の曲が見つかりません（スキップ）: {f}"); continue
+            kv = {k: (row.get(k) or "").strip() for k in ("name", "composer", "original", "original_song")}
+            a = (row.get("arrange") or "").strip()
+            has_orig = bool(kv["original"] or kv["original_song"])
+            if has_orig:                      # 原作名・原曲名があれば、arrange 欄が false/空でもアレンジ曲にする
+                kv["arrange"] = "true"
+            else:
+                kv["arrange"] = a or "false"
+            set_attrs(hit[0], kv); n += 1
+    print(f"CSV から {n} 曲を反映しました: {path}")
+
+def export_csv(path):
+    with Path(path).open("w", encoding="utf-8-sig", newline="") as fp:
+        w = csv.writer(fp); w.writerow(CSV_COLS)
+        for _, t in all_tracks():
+            w.writerow([t["file"], t["name"], t["composer"], "true" if t["arrange"] else "false",
+                        t["original"], t["original_song"]])
+    print(f"CSV を書き出しました: {path}（title が自動のままの曲は name 欄が空です）")
+
+if args.import_csv:
+    import_csv(args.import_csv)
 
 for spec_args in args.track:                                   # --track
     spec, *pairs = spec_args
@@ -321,7 +372,7 @@ for spec_args in args.track:                                   # --track
             sys.exit(f"--track は「曲の指定 KEY=VALUE ...」の形で指定してください: {pr}")
         k, v = pr.split("=", 1)
         if k.strip().lower() not in FIELDS:
-            sys.exit(f"使えるキーは composer / arrange / original / original_song です: {k}")
+            sys.exit(f"使えるキーは name / composer / arrange / original / original_song です: {k}")
         kv[FIELDS[k.strip().lower()]] = v
     if not kv:
         sys.exit(f"--track {spec} に設定する KEY=VALUE がありません")
@@ -361,6 +412,7 @@ def interactive():                                             # -i
             if v == "-": kv[key] = ""
             elif v: kv[key] = v
         try:
+            ask("曲名 (Name)", "name")
             ask("Composer", "composer")
             a = input(f"  アレンジ曲ですか？ y/n{' 現在: ' + ('y' if one['arrange'] else 'n') if one else ''} → ").strip()
             if a: kv["arrange"] = to_bool(a)
@@ -373,6 +425,8 @@ def interactive():                                             # -i
             if kv: set_attrs(t, dict(kv))
 if args.interactive:
     interactive()
+if args.export_csv:
+    export_csv(args.export_csv)
 
 gone = [k for k in track_cfg if k not in seen]
 if gone:
