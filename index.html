@@ -35,7 +35,8 @@ main{display:grid;grid-template-columns:1.55fr 1fr;gap:26px}
 .tr .t{flex:1}.tr .d{color:var(--sub);font-size:12px;font-variant-numeric:tabular-nums}
 .tr.on{background:var(--hl)}.tr.on .n::before{content:"▶ ";color:var(--deep);font-size:10px}
 .side{display:flex;flex-direction:column;gap:12px;align-items:center}
-.art{width:min(100%,260px);aspect-ratio:1;border:4px solid #fff;border-radius:3px;box-shadow:0 3px 14px #0002;position:relative;overflow:hidden;
+.artbox{display:contents}
+.art{flex:none;width:min(100%,260px);aspect-ratio:1;border:4px solid #fff;border-radius:3px;box-shadow:0 3px 14px #0002;position:relative;overflow:hidden;
   background:radial-gradient(circle at 50% 70%,#f4c48a,#fbe8cf 60%,#fff)}
 .art .c1{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
 .art b{font-size:clamp(20px,3.6vw,30px);font-weight:600;line-height:1.2}
@@ -124,9 +125,11 @@ canvas{grid-column:1/-1;width:100%;height:34px}
   .ttl h1{font-size:30px}.ttl small{font-size:13px}.os{font-size:38px}
   .emblem{width:46px;height:46px;font-size:24px}
   .tab{font-size:16px;padding:8px 26px}
-  .side{min-height:0;gap:10px}
-  .art{width:min(100%,250px)}
-  .meta{font-size:14px;gap:3px 10px}
+  .side{min-height:0;gap:10px;overflow:hidden}
+  /* ジャケットは「残りの高さ」と「幅」のうち小さい方に合わせた正方形にする（アレンジ情報の行が増えても縦につぶれない） */
+  .artbox{display:grid;place-items:center;flex:1 1 0;min-height:0;width:100%;container-type:size}
+  .art{width:min(100%,250px);width:min(250px,100cqw,100cqh)}
+  .meta{flex:none;font-size:14px;gap:3px 10px}
   .player{margin-top:14px}
   .np .nm{font-size:18px}
 }
@@ -149,7 +152,8 @@ canvas{grid-column:1/-1;width:100%;height:34px}
  2) 曲や画像を追加・変更したら  python make_tracks.py  を実行 → meta.json が上書き生成される
     このページは meta.json を読み込んで表示する。
     ※ file:// で直接開くと meta.json を読めないので、GitHub Pages などに置くか、
-      このフォルダで  python -m http.server  を実行して http://localhost:8000/soundtrack.html を開く
+      このフォルダで  python serve.py  を実行して http://localhost:8000/ を開く
+      （python -m http.server は音声のシークに必要な Range に対応しておらず、曲の長さやシークバーがずれるので serve.py を使う）
  3) meta.json の書き方（詳細は make_tracks.py の冒頭）
       {
         "album": "アルバム名", "default_composer": "H@RM0NiA",
@@ -202,7 +206,7 @@ canvas{grid-column:1/-1;width:100%;height:34px}
       <p id="svmiss" class="mmiss" hidden></p>
     </div>
     <div class="side">
-      <div class="art"><div class="c1"><b>牛屎<em>院風</em>土記</b><i>Unknown Chronicles of Hidden Land</i></div></div>
+      <div class="artbox"><div class="art"><div class="c1"><b>牛屎<em>院風</em>土記</b><i>Unknown Chronicles of Hidden Land</i></div></div></div>
       <div class="meta">
         <span>Album :</span><div id="mAlb">牛屎院風土記　〜 Unknown Chronicles of Hidden Land</div>
         <span>Composer :</span><div id="mComp">-</div>
@@ -308,7 +312,9 @@ function modeUI(){
 let vi=0, ti=0, playing=false, shuffle=false, repeat=0, pos=0, timer=null;
 const fmt=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
 const cur=()=>VERSIONS[vi].tracks[ti];
-const dur=()=>staff?(isFinite(sv.duration)?sv.duration:0):(au.src&&isFinite(au.duration)&&cur().src?au.duration:cur().d);
+// 曲の長さは meta.json の duration（make_tracks.py が正確に測定）を基準にする。
+// ブラウザが推定した長さ(audio.duration)は、Rangeに対応しないサーバーや一部のmp3で不正確になるため、duration が無いときだけ使う
+const dur=()=>staff?(isFinite(sv.duration)?sv.duration:0):(cur().d>0?cur().d:(cur().src&&isFinite(au.duration)?au.duration:0));
 
 let staff=false;   // true: スタッフロール(動画)タブを表示中
 let omakeShown=false, omakeFade=false;   // 再読み込みすると false に戻る(保存はしない)
@@ -416,8 +422,18 @@ function update(){
   $("fill").style.width=(d?Math.min(100,c/d*100):0)+"%";
 }
 au.addEventListener("timeupdate",update);
-au.addEventListener("loadedmetadata",update);
-au.addEventListener("ended",ended);
+au.addEventListener("loadedmetadata",()=>{
+  update();
+  const t=cur();
+  if(t.src&&t.d>0&&isFinite(au.duration)&&Math.abs(au.duration-t.d)>2)
+    console.warn(`「${t.t}」: meta.json の duration(${t.d}s) とブラウザが推定した長さ(${au.duration.toFixed(1)}s) が異なります。`+
+      "make_tracks.py を再実行するか、Range 対応サーバー(python serve.py)で開いているか確認してください。");
+});
+au.addEventListener("ended",()=>{
+  const t=cur();   // 実際に最後まで再生できた長さが分かったら、以降の表示に反映
+  if(t.src&&au.currentTime>1&&Math.abs(au.currentTime-t.d)>1)t.d=au.currentTime;
+  ended();
+});
 sv.addEventListener("timeupdate",()=>{if(staff)update()});
 sv.addEventListener("loadedmetadata",()=>{if(staff)update()});
 sv.addEventListener("play",()=>{
