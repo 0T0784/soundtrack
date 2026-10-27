@@ -1,0 +1,261 @@
+{
+  "_readme": "このファイルは make_tracks.py が実行のたびに上書き生成します。書き方は make_tracks.py の冒頭を参照。",
+  "album": "夢違季節理論 ～ Mystic Season theory",
+  "default_composer": "H@RM0NiA",
+  "images": {
+    "emblem": "",
+    "cover": "images/cover.jpg"
+  },
+  "staffroll": {
+    "label": "Staff Roll",
+    "video": "staffroll.mp4",
+    "poster": "",
+    "icon": "images/staffroll.jpg"
+  },
+  "omake": {
+    "label": "おまけ",
+    "url": "omake.html",
+    "sound": "se/trophy.mp3",
+    "title": "スタッフロール完走",
+    "text": "「おまけ」が解放されました",
+    "icon": ""
+  },
+  "discs": [
+    {
+      "id": "disc1",
+      "name": "Disc 1",
+      "icon": "",
+      "cover": "",
+      "tracks": [
+        {
+          "file": "audio/disc1/track01.ogg",
+          "title": "移ろわぬ紅葉",
+          "name": "移ろわぬ紅葉",
+          "duration": 60,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc1/track02.ogg",
+          "title": "今秋も平和な魔女の森　〜 A Curious Anomaly",
+          "name": "今秋も平和な魔女の森　〜 A Curious Anomaly",
+          "duration": 160,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc1/track03.ogg",
+          "title": "秋幻の魔導書　～ the Grimoire of Autumn",
+          "name": "秋幻の魔導書　～ the Grimoire of Autumn",
+          "duration": 174,
+          "composer": "0to784",
+          "arrange": true,
+          "original": "上海アリス幻樂団『東方怪綺談』",
+          "original_song": "the Grimoire of Alice"
+        },
+        {
+          "file": "audio/disc1/track04.ogg",
+          "title": "変わらぬ山に満ちる気配　～ Presence Unseen",
+          "name": "変わらぬ山に満ちる気配　～ Presence Unseen",
+          "duration": 113,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc1/track05.ogg",
+          "title": "秋の恵みは誰が為に　～ A Ferst for None",
+          "name": "秋の恵みは誰が為に　～ A Ferst for None",
+          "duration": 169,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc1/track06.ogg",
+          "title": "秋期の神威　〜 Autumn Wrath",
+          "name": "秋期の神威　〜 Autumn Wrath",
+          "duration": 135,
+          "composer": "0to784",
+          "arrange": true,
+          "original": "上海アリス幻樂団『東方風神録』",
+          "original_song": "人恋し神様　～ Romantic Fall"
+        },
+        {
+          "file": "audio/disc1/track07.ogg",
+          "title": "稲田姫様はお怒りだから",
+          "name": "稲田姫様はお怒りだから",
+          "duration": 118,
+          "composer": "0to784",
+          "arrange": true,
+          "original": "上海アリス幻樂団『東方風神録』",
+          "original_song": "稲田姫様に叱られるから"
+        },
+        {
+          "file": "audio/disc1/track08.ogg",
+          "title": "秋天に咲き誇る妖しい太陽の花",
+          "name": "秋天に咲き誇る妖しい太陽の花",
+          "duration": 219,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc1/track09.ogg",
+          "title": "今昔幻想郷　〜 Flower Land",
+          "name": "今昔幻想郷　〜 Flower Land",
+          "duration": 300,
+          "composer": "0to784",
+          "arrange": true,
+          "original": "上海アリス幻樂団『東方花映塚』",
+          "original_song": "今昔幻想郷　〜 Flower Land"
+        },
+        {
+          "file": "audio/disc1/track10.ogg",
+          "title": "幽玄蝕塵　〜 Rekindled Vengeance",
+          "name": "幽玄蝕塵　〜 Rekindled Vengeance",
+          "duration": 108,
+          "composer": "0to784",
+          "arrange": true,
+          "original": "上海アリス幻樂団『東方封魔録』",
+          "original_song": "東方封魔録　～ 幽玄乱舞"
+        },
+        {
+          "file": "audio/disc1/track11.ogg",
+          "title": "Complete Darkness",
+          "name": "Complete Darkness",
+          "duration": 172,
+          "composer": "0to784",
+          "arrange": true,
+          "original": "上海アリス幻樂団『東方封魔録』",
+          "original_song": "Complete Darkness"
+        },
+        {
+          "file": "audio/disc1/track12.ogg",
+          "title": "天使伝説",
+          "name": "天使伝説",
+          "duration": 179,
+          "composer": "0to784",
+          "arrange": true,
+          "original": "上海アリス幻樂団『東方靈異伝』",
+          "original_song": "天使伝説"
+        },
+        {
+          "file": "audio/disc1/track13.ogg",
+          "title": "リーインカーネィション",
+          "name": "リーインカーネィション",
+          "duration": 251,
+          "composer": "0to784",
+          "arrange": true,
+          "original": "上海アリス幻樂団『東方封魔録』",
+          "original_song": "リーインカーネィション"
+        },
+        {
+          "file": "audio/disc1/track14.ogg",
+          "title": "瘴気渦巻く魔界の果て　〜 Pandemic Override",
+          "name": "瘴気渦巻く魔界の果て　〜 Pandemic Override",
+          "duration": 136,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc1/track15.ogg",
+          "title": "今宵も素敵な皆既月食　〜 Clandestine Visage",
+          "name": "今宵も素敵な皆既月食　〜 Clandestine Visage",
+          "duration": 236,
+          "composer": "hika0906ru / koukou0906",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc1/track16.ogg",
+          "title": "月の裏に隠された真の貌",
+          "name": "月の裏に隠された真の貌",
+          "duration": 287,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc1/track17.ogg",
+          "title": "移りゆく秋分",
+          "name": "移りゆく秋分",
+          "duration": 93,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc1/track18.ogg",
+          "title": "秋路の果てに",
+          "name": "秋路の果てに",
+          "duration": 106,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        }
+      ]
+    },
+    {
+      "id": "disc2",
+      "name": "Disc 2",
+      "icon": "",
+      "cover": "",
+      "tracks": [
+        {
+          "file": "audio/disc2/track01.ogg",
+          "title": "牛屎院風土記　〜 Unknown Chronicles of Hidden Land",
+          "name": "牛屎院風土記　〜 Unknown Chronicles of Hidden Land",
+          "duration": 192,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc2/track02.ogg",
+          "title": "track02",
+          "name": "",
+          "duration": 215,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc2/track03.ogg",
+          "title": "track03",
+          "name": "",
+          "duration": 83,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        },
+        {
+          "file": "audio/disc2/track04.ogg",
+          "title": "track04",
+          "name": "",
+          "duration": 204,
+          "composer": "0to784",
+          "arrange": false,
+          "original": "",
+          "original_song": ""
+        }
+      ]
+    }
+  ]
+}
