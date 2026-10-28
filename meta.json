@@ -24,7 +24,7 @@
     {
       "id": "disc1",
       "name": "Disc 1",
-      "icon": "",
+      "icon": "images/disc.png",
       "cover": "",
       "tracks": [
         {
@@ -212,7 +212,7 @@
     {
       "id": "disc2",
       "name": "Disc 2",
-      "icon": "",
+      "icon": "images/disc.png",
       "cover": "",
       "tracks": [
         {
