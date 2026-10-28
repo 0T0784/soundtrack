@@ -3,324 +3,321 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>おまけテキスト</title>
+<title>おまけ　〜 牛屎院風土記</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f1f4f7;
-    --surface: #ffffff;
-    --ink: #1f2a37;
-    --muted: #5b6b7c;
-    --line: #cfd8e1;
-    --accent: #2f6f8f;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #141b22;
-      --surface: #1c262f;
-      --ink: #e6ebf0;
-      --muted: #9aabbb;
-      --line: #33414e;
-      --accent: #7fc0dc;
-    }
-  }
+:root{
+  --bg1:#fbf0e1; --bg2:#f2dabb; --ink:#4a2c1a; --sub:#9c7a5f; --rose:#c8682c;
+  --deep:#8f2d12; --deep2:#c4481f; --line:#e5cfb3; --hl:#f5d6ae; --card:#fffaf2;
 
-  * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
-    line-height: 1.9;
-  }
+  /* ▼ 背景画像（jpg）。HTML と同じ場所からの相対パス。差し替えるならここだけ */
+  --bg-img:url("images/omake_bg.jpg");
+  --bg-blur:14px;      /* ぼかしの強さ */
+  --bg-white:.55;      /* 白でどれだけ淡くするか（0〜1。大きいほど白っぽい） */
+}
+*{box-sizing:border-box}
+html{background:#fff}
+body{margin:0;min-height:100vh;padding:28px 16px 40px;
+  font-family:"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif;color:var(--ink)}
 
-  main {
-    max-width: 44rem;
-    margin: 0 auto;
-    padding: 3rem 1.25rem 5rem;
-  }
+/* 背景：jpg をぼかして全面に固定表示（画像が無ければ白のまま） */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:#fff}
+.bg::before{content:"";position:absolute;inset:-60px;           /* ぼかしの端が白く抜けないよう外側に広げる */
+  background:var(--bg-img) center/cover no-repeat;filter:blur(var(--bg-blur))}
+.bg::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,var(--bg-white))}
 
-  h2 {
-    margin: 0 0 1.25rem;
-    padding-left: .75rem;
-    border-left: 4px solid var(--accent);
-    font-size: 1.5rem;
-    line-height: 1.4;
-  }
-  h3 {
-    margin: 0 0 .25rem;
-    font-size: 1.15rem;
-    line-height: 1.5;
-  }
-  .who {
-    margin: 0 0 1rem;
-    color: var(--accent);
-    font-weight: 700;
-  }
+.frame{width:min(820px,100%);margin:0 auto;border-radius:28px;padding:18px 24px 26px;
+  background:linear-gradient(160deg,#fbf0e1ee,#f2dabbee);
+  box-shadow:0 10px 40px #8f2d1230, inset 0 0 0 2px #fff8}
 
-  /* ★ ここが改行のキモ ★
-     white-space: pre-wrap により、HTML内の改行・空行・全角スペースが
-     そのまま画面に反映されます。<br> や <p> は不要です。 */
-  .text {
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;
+  border-bottom:1px solid var(--line);padding-bottom:8px}
+.ttl{display:flex;gap:12px;align-items:center}
+.emblem{width:38px;height:38px;border-radius:50%;flex:none;overflow:hidden;
+  background:radial-gradient(circle at 35% 30%,#f0b266,var(--deep));
+  display:grid;place-items:center;color:#fff;font-size:20px;box-shadow:0 2px 6px #8f2d1255}
+.emblem img{width:100%;height:100%;object-fit:contain;display:block}
+.ttl h1{margin:0;font-size:clamp(18px,3vw,26px);font-weight:600;letter-spacing:.02em}
+.ttl small{display:block;color:#c9a98a;font-size:12px;font-style:italic}
+.os{font-family:Cinzel,serif;font-size:clamp(16px,3.2vw,26px);color:var(--rose);letter-spacing:.04em;white-space:nowrap}
 
-  .block {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 1.5rem 1.5rem;
-    margin-bottom: 1.5rem;
-  }
+.back{display:inline-block;margin:14px 0 6px;border:1px solid var(--line);background:var(--card);
+  border-radius:999px;padding:7px 22px;font-size:14px;color:var(--ink);text-decoration:none;transition:.15s}
+.back:hover{background:var(--hl);border-color:var(--deep2);color:var(--deep)}
 
-  hr {
-    border: 0;
-    border-top: 1px solid var(--line);
-    margin: 3rem 0;
-  }
+section{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 20px 16px}
+section h2{margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line);
+  font-size:16px;font-weight:600;color:var(--deep);letter-spacing:.06em}
 
-  @media (max-width: 480px) {
-    main { padding-top: 2rem; }
-    .block { padding: 1.1rem 1rem; }
-  }
+/* ★ メモ欄：書いた改行・空行・行頭の空白がそのまま表示される */
+.memo{margin:0;font:inherit;font-size:14.5px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}
+
+/* カテゴリ（開閉）：Special Thanks の分類・Disc の大分類・曲ごとの小ネタで共通 */
+details.cat{border-top:1px dashed var(--line)}
+details.cat:first-of-type{border-top:0}
+summary{cursor:pointer;list-style:none;padding:9px 6px;font-size:14.5px;border-radius:8px}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▶";color:var(--deep);font-size:10px;margin-right:8px}
+details[open]>summary::before{content:"▼"}
+summary:hover{background:#f8e4c8}
+details .memo{padding:2px 8px 12px 24px}
+
+/* Special Thanks：1人ごとのカテゴリ（プロフィールとひとこと） */
+.person{padding:0 8px 8px 24px}
+.person h3{margin:6px 0 2px;font-size:12px;font-weight:600;color:var(--sub);letter-spacing:.08em}
+.person .memo{padding:0 0 8px}
+
+/* Disc の大分類（中に曲ごとのカテゴリが入る） */
+details.disc{border:1px solid var(--line);border-radius:12px;background:#fffdf8;margin-top:10px}
+details.disc:first-of-type{margin-top:0}
+details.disc>summary{font-size:15px;font-weight:600;color:var(--deep);padding:11px 14px}
+details.disc>summary small{font-weight:400;font-size:12px;color:var(--sub);margin-left:10px}
+details.disc>.inner{padding:0 12px 10px 22px}
+
+footer{margin-top:18px;text-align:center;font-size:12px;color:var(--sub)}
+@media (max-width:520px){.frame{padding:14px 14px 20px;border-radius:22px}section{padding:12px 14px 14px}}
 </style>
 </head>
 <body>
-<main>
+<div class="bg"></div>
 
 <!--
-  ■ 編集のしかた
-  ・文章は <div class="text"> と </div> の間に、そのまま書けばOKです。
-    改行も空行も、書いたとおりに表示されます（<br>不要）。
-  ・開始タグ <div class="text"> の直後から書き始めてください
-    （直後に改行を入れると、先頭に空行が出ます）。
-  ・新しい人の紹介を足すときは、下の「<section class="block"> ～ </section>」を
-    まるごとコピーして貼り付け、中身を書き換えてください。
-  ・半角の < や & を文章に使うときだけ、&lt; &amp; と書いてください。
+  ================= 書き方メモ =================
+  ・<pre class="memo"> と </pre> の間に、そのままメモのように書けば OK。
+    改行・空行・行頭のスペースは、書いたとおりに表示されます。
+  ・文字として「<」「>」「&」を使いたいときだけ、 &lt;  &gt;  &amp; と書いてください。
+  ・Special Thanks に人を増やす：<details class="cat"> 〜 </details> を1人分コピーして貼る。
+    名前は <summary> の中を書き換える。プロフィールとひとことは、それぞれ <pre class="memo"> の中に書く。
+    リンクを載せたいときは <pre> の中に <a href="URL">表示名</a> と書けばOK。
+  ・曲の小ネタを増やす：Disc の <div class="inner"> の中に、<details class="cat"> 〜 </details> を
+    コピーして貼る（<summary> に「19　曲名」のように書く）。
+  ・Disc を増やす：<details class="disc"> 〜 </details> をまるごとコピーして貼る。
+    Disc の「○曲」は手書きなので、曲を足したら書き換える。
+  ・項目（あとがきなど）を増やす：<section> 〜 </section> のかたまりをコピーして貼る。
+  ・背景：images/omake_bg.jpg を置く（名前を変えるなら上の --bg-img を書き換える）。
 -->
 
-<section class="block">
-<h2>おまけテキストとは</h2>
-<div class="text">一部のＰＣゲームには、ファイルの中身を閲覧できることから、
-omake.txtなどの小ネタやあとがきを記入した、テキストファイルを
-ゲームソフトなどが同梱されているフォルダに隠す風習があるようです。
+<div class="frame">
+  <header>
+    <div class="ttl">
+      <div class="emblem"><img src="images/emblem.png" alt="" onerror="this.remove()">♫</div>
+      <h1>おまけ<small>〜 牛屎院風土記</small></h1>
+    </div>
+    <div class="os">Extra</div>
+  </header>
 
-もし、あなたがこれを見ているのなら……
-私がhtmlファイルに隠した要素を見つける物好きな方であると思われます。
+  <a class="back" href="index.html">← プレイヤーに戻る</a>
 
-それは、本人談で知ったのか、たまたま見つけることができたのか……
-ともかく見つけた理由は、いまテキストをタイピングしている
-私が知る由もありません。
+  <section>
+    <h2>あとがき</h2>
+<pre class="memo">
+ここにあとがきを書きます。
+改行はそのまま反映されます。
 
-とにかく、見つけれてくれてありがとう！！！
-心ゆくまで楽しんで（？）ください！！！
+空行も、そのまま空きます。
+</pre>
+  </section>
 
-小ネタ: 
-メインのhtmlでShift+0を長押ししている間は、
-隠しコマンドが検知された回数を確認できます。
-もし、よろしければ是非ご活用ください……！！
+  <section>
+    <h2>Special Thanks</h2>
+    <details class="cat">
+      <summary>〇〇さん</summary>
+      <div class="person">
+        <h3>プロフィール</h3>
+<pre class="memo">
+ここにプロフィールを書きます。
+担当したこと、活動名、リンクなど。
+</pre>
+        <h3>ひとこと</h3>
+<pre class="memo">
+ここに、オトからのひとことを書きます。
+</pre>
+      </div>
+    </details>
+    <details class="cat">
+      <summary>△△さん</summary>
+      <div class="person">
+        <h3>プロフィール</h3>
+<pre class="memo">
+ここにプロフィールを書きます。
+担当したこと、活動名、リンクなど。
+</pre>
+        <h3>ひとこと</h3>
+<pre class="memo">
+ここに、オトからのひとことを書きます。
+</pre>
+      </div>
+    </details>
+    <details class="cat">
+      <summary>□□さん</summary>
+      <div class="person">
+        <h3>プロフィール</h3>
+<pre class="memo">
+ここにプロフィールを書きます。
+担当したこと、活動名、リンクなど。
+</pre>
+        <h3>ひとこと</h3>
+<pre class="memo">
+ここに、オトからのひとことを書きます。
+</pre>
+      </div>
+    </details>
+    <details class="cat">
+      <summary>遊んでくださったみなさまへ</summary>
+<pre class="memo">
+ここに書きます。
+</pre>
+    </details>
+  </section>
+
+  <section>
+    <h2>楽曲の小ネタ</h2>
+    <details class="disc" open>
+      <summary>Disc 1<small>18曲</small></summary>
+      <div class="inner">
+        <details class="cat">
+          <summary>01　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>02　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>03　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>04　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>05　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>06　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>07　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>08　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>09　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>10　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>11　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>12　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>13　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>14　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>15　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>16　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>17　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>18　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+      </div>
+    </details>
+    <details class="disc">
+      <summary>Disc 2<small>4曲（制作中）</small></summary>
+      <div class="inner">
+        <details class="cat">
+          <summary>01　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>02　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>03　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+          <details class="cat">
+          <summary>04　曲名をここに</summary>
+<pre class="memo">
+この曲の小ネタをここに書きます。
+</pre>
+        </details>
+      </div>
+    </details>
+  </section>
+
+  <footer>© オト</footer>
 </div>
-</section>
-
-<!-- ================= あとがき ================= -->
-<section class="block">
-<h2>あとがき</h2>
-<div class="text">この度は、数ある作品の中から私の作品を
-ご覧いただき誠にありがとうございます。
-
-初心者が一から作り上げたオリジナル曲を中心に、一部カバー曲や
-ご提供くださった曲も交えた今回の作品。楽しんでいただけたでしょうか？
-……すべてが完全オリジナルというわけではありません（笑）。
-
-今回は、記念すべき（？）卒業制作に向けて、さまざまな方々の
-ご協力をいただきながら、完成と言っていいのかは少々自信がありませんが、
-なんとか一つの作品として完成させることができました。
-
-曲を作り、曲に込めるストーリーを考え、イラストを描く。そうした創作活動に
-取り組んだ日々は、私にとって、とても充実した時間となりました。
-もちろん、思い通りにいかないこともありましたが、それも含めて、自分の手で
-一つの作品を作り上げることの楽しさや難しさを実感できたと思います。
-
-ちなみに、当初はすべての楽曲に一枚ずつイラストを描いていたのですが、最終的に「ジャケットだけで十分なのでは？」という結論に至り、
-そのほとんどがお蔵入りとなりました（笑）。せっかく描いたのに、
-日の目を見ることがなくなってしまったイラストたち……。
-いつかどこかで公開する機会があればいいなぁ、と思っています。
-
-さて、少し話は変わりますが、昨今ではＡＩが急速に普及し、教育現場や職場など、さまざまな場面で活用されるようになりました。
-実際、私自身や家族も日常生活の中でＡＩをそれなりに活用しています。
-
-ＡＩは、使い方次第で私たちの可能性を広げ、
-創作活動を助けてくれる便利な技術です。
-一方で、悪用による個人情報の流出や漏洩など、さまざまな問題が起きているのも
-事実です。実は私自信も、そうした被害に遭いかけた経験があります。
-
-ＡＩは、使い方によって人を助ける力にも、人を傷つける力にもなり得ます。
-だからこそ、便利さだけに目を向けるのではなく、その使い方ついても考えていく
-必要があるのではないでしょうか。
-
-もちろん、私はＡＩを活用した作品などを否定するつもりはありません。
-ＡＩを上手に活用することで、制作の時間を短縮したり、
-自分一人では思いつかなかったアイデアに出会えたりすることもあるでしょう。
-
-ただ、もしこの作品を通じて、ここを訪れてくださった方のうち一人でも、
-「自分の手で何かを作ってみたい」「自分だけで作品を生み出してみたい」と思っていただけたなら、これほど嬉しいことはありません。
-
-上手に作れるかどうかは、最初から気にしなくても良いと思います。
-まずは作ってみる。そこから生まれる楽しさや発見も、創作の大切な魅力
-ではないでしょうか。
-
-……と少々真面目な話が長くなってしまいましたね（笑）。
-
-卒業制作展には、私以外の作品にも個性豊かで素晴らしい作品が
-たくさん展示されています。
-ぜひ、ほかの方々の作品もゆっくりとご覧ください！
-
-さて、ここまで読んでくださった方、ありがとうございます！
-
-ここからは、本作品に関わってくださった方々や、それぞれの楽曲の小ネタなどを、私の独断と偏見（？）を交えて紹介していく、
-ちょっとしたおまけコォナァです。
-（omake.htmlのおまけ…　つまり、おまけのおまけである）
-
-作品そのものとはあまり関係のない話もあるかもしれませんが、興味のある方はぜひ読んでいってください（笑）。</div>
-</section>
-
-<hr>
-
-<!-- ================= スペシャルサンクス ================= -->
-<h2>スペシャルサンクス</h2>
-
-<section class="block">
-<h3>自称教祖で甘党な先輩</h3>
-<p class="who">ryusirou612 さん</p>
-<div class="text">本作品のネタバレにならない範囲で最終チェック等に協力してくれた方です。
-
-この高校の卒業生です（元情報システム科で、いまは専門学生です）。
-この方は中学生時代からの仲で、
-高校時代も変わらず仲良くしてもらっていました。
-
-この方は「自称教祖（？！）であり甘党」というとてつもない個性があります。
-とにかく面白いところが印象的ですが、実はとても優しい方でもあります。
-
-私がメンタルブレイクしたときには、スイーツ巡りに連れて行ってくれるなど、
-メンタルケア（？）までしてくれました。おかげで、何度助けられたことか……
-
-この度は本作品のチェックに協力してくれて本当にありがとうございました！</div>
-</section>
-
-<section class="block">
-<h3>なんでもできそうなレッサーパンダ</h3>
-<p class="who">koukou0906 / hika0906ru さん</p>
-<div class="text">名前が２つありますが、同一人物です。
-大事なこと（？）なので書いておきます（笑）。
-
-本作品の展示に伴い、作品を提供してくださいました！！
-私の無茶振りでご迷惑をおかけしてしまったかもです(^^;)
-
-この方も中学生時代からの仲でとても頼りになる存在です。
-実は、私の「一人でなんでもこなせる人になりたい」という目標の
-ルーツは、この方にあります。そのくらい、本当になんでもできます。
-
-そして、ご提供いただいた曲はとても良い曲なんです。
-本当に、本当にぜひ聞いていただきたい！！！
-この作品から生まれた（勝手に）カバー（した）曲がいくつかあるんです。
-……詳しい話は、ぜひ実際に聞いて確かめてみてください！
-
-この度は素敵な楽曲をご提供いただき、本当にありがとうございました！
-</div>
-</section>
-
-<section class="block">
-<h3>イラストも動画編集もゲームもおまかせ！</h3>
-<p class="who">mokoyukkuri さん</p>
-<div class="text">本作品のジャケットのイラストの人物、
-その原案を描いてくださった方➀です。大本命の原案はおおよそ4～5年前……
-時間の流れというものは実に早いものです。
-
-当時は、無料で立ち絵まで提供していただき、本当に感謝しています。
-本当にとてもお優しい方です。イラストも上手ですので、
-ぜひＸでイラストを見てほしいです！！！
-
-また、この方は私の活動のターニングポイント（？）を与えてくれた人物であり、
-恩人とも呼べる方です。
-
-いまはおそらく活動を休止しているものと思われます。
-（Discordではたまにイラストが投稿されているようです）
-
-活動再開をみなさんも楽しみに待ちましょう…！！
-活動再開したら、まずは挨拶代わりに依頼しようかな（笑）
-（追記: めちゃくちゃ元気にしてました。今度依頼します（笑））
-</div>
-</section>
-
-<section class="block">
-<h3>イラスト上手くて褒め上手なお姉様（勝手にそう読んでるだけ）</h3>
-<p class="who">ril_7220 さん</p>
-<div class="text">本作品のジャケットのイラストの人物、
-その原案を描いてくださった方➁です。
-
-この方も、イラストが上手なんですよ！！ほんとに！！！
-私が関わってる人の半分が、イラストが上手って何かのバグかもしれません。
-（もしかしたら、私が何もできない・したがらないバグの可能性が……）
-
-みんな彼女のことを「リル姉」と呼んで親しんでいます。
-
-とにかく、めちゃくちゃ褒めてくれる印象です。
-それに加えて自身のことを卑下している印象も若干あるのですが、
-あなたにも、あなたにしかできない個性があることをお忘れなく……
-
-先程と矛盾しますが、一人でなんでもできてしまうと個性がなくなる気がして。
-シゴデキを取るか、個性を取るのか、悩ましい限りです。
-
-まあ、それが人生の醍醐味なのかもしれません。
-</div>
-</section>
-
-<section class="block">
-<h3>日本語が流麗な韓国人</h3>
-<p class="who">litfo さん</p>
-<div class="text">本作品のジャケットのイラストの人物、
-その原案を描いてくださった方➂です。
-このキャラだけで複数人が関わっています。ほんと、大きな作品だ……。
-
-また、韓国人の親友です。ryusirou さんの存在と、パズルゲームがきっかけで
-友達になりました。インターネットは言語の壁を超えることができる
-とても素晴らしいアイテムです。ＳＮＳやオンラインゲームをしている方には
-おそらく伝わると思います。それ以外の人にも伝わってほしい。
-
-私がイラストを描くことが趣味の一つになったきっかけを
-作ってくれた方で、私が無断でイラストを参考にしていたりします（？！）。
-
-また、私の病み期のときに支えてくれた方でもなります。学校を休んでいた間は
-よくこの方とＤＭをしたり、通話したり、ゲームで遊んだり、
-イラストを一緒に描いたり……　なんでも付き合ってくれました。
-
-いまでも、そこそこの頻度で連絡を取り合っています。
-機会があったら、いつでもゲームに誘ってね！
-</div>
-</section>
-
-<section class="block">
-<h3>永秋異変（仮）の原因……？</h3>
-<p class="who">doufuyu さん</p>
-<div class="text">このサウンドトラックの原案を参考元です。
-また例の如く、勝手に参考にさせていただいたのですが（笑）。
-
-つまり、この作品は彼がいなかったら完成しなかったかもだし、
-この異変の原因は彼にある……　のか……？　そんなわけなかろう(^^;)
-
-異変は恐らく、とある人のサボりすぎに原因があるのでしょう。
-（一体誰なんだろう……　え？！　私？！　そうかもしれないなぁ……）
-
-この方の案で、生まれたキャラ１人（？）に加え、生まれた曲が複数あります。
-みなさんも、感謝・大感謝・特大感謝しまくりましょう。きっと、喜びますよ。
-</div>
-</section>
-
-<p class="who">…and You!!!!!!</p>
-</main>
 </body>
 </html>
