@@ -1,11 +1,10 @@
-# 牛屎院風土記　〜　Unknown Chronicles of Hidden Land**
+# 牛屎院風土記　〜　Unknown Chronicles of Hidden Land
 
 htmlサウンドトラック　ver 1.04a
 
 **README 私を読んで**　／　著者: オト
 
 | | |
-|---|---|
 | Album | 牛屎院風土記　〜 Unknown Chronicles of Hidden Land |
 | Composer | 0to784 |
 | Release | 2026.11.21 |
