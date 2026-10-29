@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>牛屎院風土記 ～ Unknown Chronicles of Hidden Land</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Noto+Serif+JP:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<!--
+  ★ 書き換える場所
+   ・文章 … 下の <section> 内（ストーリー / 私について）と、キャラクターは下のスクリプト冒頭の CHAR
+   ・画像 … images/cover.jpg（メインビジュアル）, images/emblem.png（ロゴ）, キャラクター画像は CHAR の img
+   ・コンテンツ … 作品の欄（<div class="play">）の題名・説明・リンクを書き換える。欄を増やすときはその div をコピー（左・右の順に並ぶ）
+   ・作品の画像 … images/works/ に置く。png / jpg / gif のどれでもOK。<img class="wimg" data-src="images/works/名前"> の「名前」と同じファイル名にする（拡張子は書かなくてよい）。画像が無ければ表示されない
+   ・左側のGIF … images/gif/ に置いて make_tracks.py を実行（名前順に、フェードしながら順番に表示。無ければジャケット画像）
+-->
+<style>
+:root{
+  --paper:#fbf3e6; --paper2:#f3e2c8; --ink:#43261a; --sub:#8d6b52; --maple:#a8321c; --deep:#7e2410; --gilt:#c8a66a; --line:#e3cfae;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;color:var(--ink);font-family:"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif;line-height:2;letter-spacing:.04em;
+  background:
+   radial-gradient(1200px 700px at 12% 8%,#fff 0,transparent 60%),
+   radial-gradient(900px 600px at 95% 40%,#f6dfc0 0,transparent 65%),
+   url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .4  0 0 0 0 .25  0 0 0 .07 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>"),
+   var(--paper)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--maple);outline-offset:3px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+
+/* ヘッダー */
+header{position:sticky;top:0;z-index:10;background:#fbf3e6e8;backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.nav{max-width:1200px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:clamp(14px,3vw,40px)}
+.logo{display:flex;align-items:center;min-width:56px;font-weight:700;color:var(--deep);text-decoration:none}
+.logo img{height:52px;width:auto;display:block}
+.nav ul{display:flex;gap:clamp(12px,3vw,38px);list-style:none;margin:0;padding:0;flex:1}
+.nav li a{text-decoration:none;font-weight:600;font-size:1rem;letter-spacing:.14em;padding:6px 2px;border-bottom:2px solid transparent}
+.nav li a:hover,.nav li a.on{border-color:var(--maple)}
+.listen{font-weight:700;text-decoration:none;color:#fff;padding:8px 22px;border-radius:999px;letter-spacing:.12em;
+  background:linear-gradient(var(--maple),var(--deep));box-shadow:0 0 0 2px var(--paper),0 0 0 3px var(--gilt)}
+
+/* ヒーロー */
+.hero{position:relative;overflow:hidden;min-height:calc(100vh - 76px);display:grid;grid-template-columns:1.1fr 1fr;align-items:center;max-width:1300px;margin:0 auto;padding:0 24px}
+.art{position:relative;aspect-ratio:1;width:100%;max-width:640px;justify-self:center;
+  -webkit-mask-image:radial-gradient(circle at 50% 50%,#000 38%,transparent 71%);mask-image:radial-gradient(circle at 50% 50%,#000 38%,transparent 71%)}
+.art img{width:100%;height:100%;object-fit:cover;display:block}
+.art img.gimg{position:absolute;inset:0;object-fit:contain;opacity:0;transition:opacity 1.4s ease}
+.art img.gimg.on{opacity:1}
+.art.hasgif #cover{opacity:0;transition:opacity 1.4s ease}
+.art.hasgif.noimg{background:none}
+.art.noimg{background:
+  radial-gradient(circle at 50% 50%,#f0a85a 0 9%,transparent 10%),
+  repeating-radial-gradient(circle at 50% 50%,#e8935b66 0 14px,transparent 15px 44px)}
+.title{text-align:center;padding:24px 0}
+.title .t1{font-size:clamp(2.6rem,6.2vw,5rem);font-weight:700;line-height:1.15;letter-spacing:.06em;color:var(--deep);margin:0}
+.title .t1 b{color:var(--maple);font-size:1.28em;font-weight:700}
+.title .t2{font-family:Cinzel,serif;font-size:clamp(1rem,1.9vw,1.45rem);color:var(--sub);margin:.4em 0 0;letter-spacing:.08em}
+.title .tag{margin:1.8em 0;letter-spacing:.3em;color:var(--ink);font-size:clamp(.85rem,1.3vw,1rem)}
+.date{display:inline-block;padding:6px;border:1px solid var(--gilt);margin:0 0 1.6em}
+.date div{border:1px solid var(--gilt);padding:10px 34px}
+.date small{display:block;font-size:.85rem;letter-spacing:.18em}
+.date strong{font-size:clamp(1.15rem,2.4vw,1.7rem);color:var(--maple);letter-spacing:.08em}
+.btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn{min-width:200px;text-align:center;text-decoration:none;font-weight:700;color:#fff;padding:12px 26px;letter-spacing:.1em;
+  background:linear-gradient(var(--maple),var(--deep));border:3px solid var(--gilt);outline:1px solid var(--deep);outline-offset:-6px}
+.btn.alt{background:#fff8ec;color:var(--deep);outline-color:var(--gilt)}
+.leaf{position:absolute;top:-4%;font-size:20px;opacity:0;pointer-events:none;animation:fall linear infinite}
+@keyframes fall{
+  0%{opacity:0;transform:translate(0,0) rotate(0)}
+  15%{opacity:.55}
+  80%{opacity:.55}
+  100%{opacity:0;transform:translate(var(--dx),88vh) rotate(var(--rot))}}
+/* 初回のみ・下からフェードイン（JSが動くときだけ非表示状態から始める。一度表示したら再生しない） */
+.js .rv{opacity:0;transform:translateY(32px);transition:opacity 1s ease var(--d,0s),transform 1s ease var(--d,0s)}
+.js .rv.in{opacity:1;transform:none}
+
+/* 各セクション */
+section{padding:84px 0 24px}
+h2{--hs:clamp(2.8rem,7vw,5.2rem);position:relative;margin:0 0 2.4em;text-align:center;font-size:clamp(.95rem,1.6vw,1.15rem);letter-spacing:.5em;text-indent:.5em;font-weight:600;color:var(--deep)}
+h2::before{content:attr(data-en);display:block;margin:0 0 34px;text-indent:0;font-family:"Playfair Display","Noto Serif JP",serif;font-size:var(--hs);font-weight:700;letter-spacing:.02em;line-height:1.1;
+  background:linear-gradient(var(--maple),var(--deep));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2::after{content:"";position:absolute;left:50%;top:calc(var(--hs)*1.1 + 6px);width:min(560px,92%);height:22px;transform:translateX(-50%);
+  background:
+   url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 22'><path d='M54 14H31C22 14 17 10 17 6C17 3 20 2 22 3C24 4 24 7 21 8' fill='none' stroke='%23c8a66a' stroke-width='1.4' stroke-linecap='round'/></svg>") left top/56px 22px no-repeat,
+   url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 22'><g transform='translate(56 0) scale(-1 1)'><path d='M54 14H31C22 14 17 10 17 6C17 3 20 2 22 3C24 4 24 7 21 8' fill='none' stroke='%23c8a66a' stroke-width='1.4' stroke-linecap='round'/></g></svg>") right top/56px 22px no-repeat,
+   linear-gradient(var(--gilt),var(--gilt)) 56px 14px/calc(100% - 112px) 1.4px no-repeat}
+.prose{max-width:680px;margin:0 auto}
+.prose p{margin:0 0 1.4em}
+.todo{color:var(--sub);border:1px dashed var(--gilt);padding:.6em 1em;border-radius:6px;font-size:.92rem}
+
+/* キャラクター（1人） */
+.cstage{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,5vw,64px);align-items:center;max-width:960px;margin:0 auto}
+.cfig{position:relative;aspect-ratio:3/4;max-width:380px;width:100%;justify-self:center;display:grid;place-items:center}
+.cfig::before{content:"";position:absolute;width:86%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,#e9a76a55 0 38%,#e9a76a22 39% 62%,transparent 63%);border:1px solid #c8a66a77}
+.cfig img{position:relative;width:100%;height:100%;object-fit:contain;display:block}
+.cfig span{position:relative;font-size:5rem;opacity:.4}
+.cname{margin:0;font-size:clamp(2.2rem,5.2vw,4.2rem);font-weight:700;line-height:1.25;letter-spacing:.06em;color:var(--deep)}
+.cname b{color:var(--maple);font-weight:700}
+.croman{margin:.5em 0 1.6em;font-family:Cinzel,serif;letter-spacing:.5em;font-size:clamp(.8rem,1.4vw,1rem);color:var(--sub)}
+.ctext{margin:0;font-size:clamp(.95rem,1.6vw,1.1rem);line-height:2.2}
+
+/* コンテンツ（作品を左右2列に並べる） */
+.contents{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:36px;align-items:stretch;max-width:960px;margin:0 auto}
+.play{padding:6px;border:1px solid var(--gilt)}
+.play>div{height:100%;display:flex;flex-direction:column;border:1px solid var(--gilt);padding:28px 22px;text-align:center;background:#fffaf0}
+.play h3{margin:0 0 .8em;font-size:1.2rem;color:var(--deep)}
+.play .wimg{display:block;width:100%;height:auto;max-height:280px;object-fit:contain;margin:0 0 1.2em;border:1px solid var(--line)}
+.play p{margin:0 0 1.2em;font-size:.95rem}
+.play .btn{margin-top:auto;align-self:center}
+
+/* 私について */
+.about{display:flex;gap:32px;align-items:center;justify-content:center;flex-wrap:wrap}
+.about .seal{width:120px;height:120px;border-radius:50%;border:3px solid var(--gilt);outline:1px solid var(--deep);outline-offset:-8px;display:grid;place-items:center;background:#fffaf0;font-size:2.6rem;overflow:hidden}
+.about .seal img{width:100%;height:100%;object-fit:contain}
+.about dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 18px}
+.about dt{color:var(--sub)}.about dd{margin:0}
+
+footer{margin-top:96px;padding:28px 24px 36px;text-align:center;color:var(--sub);font-size:.85rem;border-top:1px solid var(--line)}
+footer p{margin:.2em 0}
+
+@media(max-width:860px){
+  .hero{grid-template-columns:1fr;min-height:0;padding-top:12px}
+  .art{max-width:420px}
+  .contents{grid-template-columns:1fr}
+  .cstage{grid-template-columns:1fr;text-align:center}
+  .nav{flex-wrap:wrap}.listen{display:none}
+  .nav li a{font-size:.9rem;letter-spacing:.06em}
+}
+@media(prefers-reduced-motion:reduce){.leaf{display:none}.js .rv{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+  <nav class="nav" aria-label="メニュー">
+    <a class="logo" href="#top" id="logo" aria-label="牛屎院風土記 トップへ"><img src="images/emblem.png" alt="" onerror="this.parentNode.textContent='牛屎院風土記'"></a>
+    <ul>
+      <li><a href="#story">ストーリー</a></li>
+      <li><a href="#chara">キャラクター</a></li>
+      <li><a href="#contents">コンテンツ</a></li>
+      <li><a href="#about">私について</a></li>
+    </ul>
+    <a class="listen" href="index.html">聴く</a>
+  </nav>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="art" id="art"><img id="cover" src="images/cover.jpg" alt="牛屎院風土記 ジャケット" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+    <div class="title">
+      <h1 class="t1">牛屎院<b>風</b>土記</h1>
+      <p class="t2">～ Unknown Chronicles of Hidden Land</p>
+      <p class="tag">東方Projectの二次創作を含む<br>2枚組オリジナルサウンドトラック</p>
+      <div class="date"><div><small>サウンドトラック公開</small><strong>2026年11月21日（土）</strong></div></div>
+      <div class="btns">
+        <a class="btn" href="index.html">サウンドトラックを聴く</a>
+        <a class="btn alt" href="#contents">他の作品も見る</a>
+      </div>
+    </div>
+  </div>
+
+  <section id="story"><div class="wrap">
+    <h2 data-en="Story">ストーリー</h2>
+    <div class="prose">
+      <p class="todo">ここにアルバムの物語（コンセプトやあらすじ）を書いてください。<code>home.html</code> の <code>id="story"</code> の中です。</p>
+      <p>紅葉に染まる里の、誰も知らない記録。</p>
+    </div>
+  </div></section>
+
+  <section id="chara"><div class="wrap">
+    <h2 data-en="Character">キャラクター</h2>
+    <div class="cstage" id="cstage"></div>
+  </div></section>
+
+  <section id="contents"><div class="wrap">
+    <h2 data-en="Contents">コンテンツ</h2>
+    <div class="contents">
+      <!-- ★ 作品の欄: 題名・画像・説明・リンクを書き換える（欄を増やすときはこの div.play をコピー。左→右の順に並ぶ） -->
+      <div class="play"><div>
+        <h3>サウンドトラック</h3>
+        <img class="wimg" data-src="images/works/soundtrack" alt="">
+        <p>Disc 1 / Disc 2 を通して聴けます。<br>スタッフロールも収録しています。</p>
+        <a class="btn" href="index.html">聴く</a>
+      </div></div>
+      <div class="play"><div>
+        <h3>作品名を書く</h3>
+        <img class="wimg" data-src="images/works/work1" alt="">
+        <p class="todo">制作者名と作品の説明をここに書いてください。</p>
+        <a class="btn alt" href="#" target="_blank" rel="noopener">見る</a>
+      </div></div>
+    </div>
+  </div></section>
+
+  <section id="about"><div class="wrap">
+    <h2 data-en="About">私について</h2>
+    <div class="about">
+      <div class="seal"><img src="images/emblem.png" alt="" onerror="this.replaceWith('🍁')"></div>
+      <dl>
+        <dt>名前</dt><dd>オト（0to784）</dd>
+        <dt>サークル</dt><dd>H@RM0NiA</dd>
+        <dt>ひとこと</dt><dd class="todo">自己紹介をここに書いてください</dd>
+      </dl>
+    </div>
+  </div></section>
+</main>
+
+<footer>
+  <p>一部作品は東方Projectの二次創作です。</p>
+  <p>無断転載はご遠慮ください。</p>
+</footer>
+
+<script>
+/* ★ キャラクター（1人）: 名前・強調する文字の位置(hl: 0始まり)・ローマ字・説明(2行)・画像(images/…)を書き換える */
+const CHAR={name:"キャラクター名",hl:2,roman:"CHARACTER NAME",text:["紹介文の1行目をここに書きます","紹介文の2行目をここに書きます"],img:""};
+const $=id=>document.getElementById(id);
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+
+// キャラクター
+(()=>{
+  const fig=el("div","cfig"), box=el("div");
+  const ph=()=>{fig.replaceChildren(el("span","","🍂"))};
+  if(CHAR.img){const i=new Image();i.alt=CHAR.name;i.onerror=ph;i.src=CHAR.img;fig.append(i)}else ph();
+  const nm=el("h3","cname");
+  [...CHAR.name].forEach((c,k)=>nm.append(k===CHAR.hl?el("b","",c):c));
+  box.append(nm,el("p","croman",CHAR.roman),el("p","ctext",""));
+  box.lastChild.replaceChildren(...CHAR.text.flatMap((t,k)=>k?[document.createElement("br"),t]:[t]));
+  $("cstage").append(fig,box);
+})();
+
+// 左側の GIF スライドショー（meta.json の gifs = images/gif/ の GIF を名前順に）。1枚ずつクロスフェードで切り替える
+const GIF_SEC=6;   // 1枚あたりの表示秒数（フェード時間を含む）
+function gifShow(list){
+  const art=$("art");
+  if(!list.length||matchMedia("(prefers-reduced-motion: reduce)").matches)return;   // 無ければ・動きを減らす設定ならジャケットのまま
+  const L=[0,1].map(()=>{const i=new Image();i.alt="";i.className="gimg";art.append(i);return i});
+  let n=0,on=1,fails=0;
+  const wait=()=>document.hidden?setTimeout(wait,1000):step();
+  function step(){
+    const img=L[on^1], src=list[n++%list.length];     // 裏側のレイヤーに次の GIF を読み込む
+    img.onload=()=>{
+      img.onload=img.onerror=null;
+      art.classList.add("hasgif");
+      img.classList.add("on");L[on].classList.remove("on");on^=1;   // 表のレイヤーとクロスフェード
+      if(list.length>1)setTimeout(wait,GIF_SEC*1000);
+    };
+    img.onerror=()=>{img.onerror=null;if(++fails<list.length*2)step()};   // 読み込めない GIF は飛ばす
+    img.src=src;
+  }
+  step();
+}
+
+// 左側の GIF 用に meta.json を読む（読めなければジャケットのまま）
+fetch("meta.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(m=>gifShow(m.gifs||[])).catch(()=>{});
+
+// 作品の画像: data-src の名前に .png → .jpg → .gif の順で探して、最初に見つかったものを表示（無ければ画像ごと出さない）
+document.querySelectorAll(".wimg").forEach(img=>{
+  const base=img.dataset.src, exts=/\.(png|jpe?g|gif|webp)$/i.test(base)?[""]:[".png",".jpg",".gif"];
+  let k=0;
+  const next=()=>{if(k>=exts.length){img.remove();return}img.src=base+exts[k++]};
+  img.onerror=next;next();
+});
+
+// ヒーローに舞う落ち葉（ここだけの控えめな動き）
+if(!matchMedia("(prefers-reduced-motion: reduce)").matches){
+  const hero=document.querySelector(".hero");
+  for(let i=0;i<9;i++){
+    const l=el("span","leaf",i%2?"🍂":"🍁");
+    l.style.cssText=`left:${Math.random()*100}%;--dx:${(Math.random()*160-80)|0}px;--rot:${(Math.random()*540-270)|0}deg;animation-duration:${14+Math.random()*12}s;animation-delay:${-Math.random()*20}s;font-size:${14+Math.random()*14}px`;
+    hero.append(l);
+  }
+}
+
+// 上のメニュー: クリックしなくても、今見ているセクションの項目に下線を付ける
+(()=>{
+  const links=[...document.querySelectorAll(".nav li a")], secs=links.map(a=>document.querySelector(a.getAttribute("href")));
+  let busy=false;
+  const spy=()=>{
+    busy=false;
+    let cur=-1;
+    secs.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<=innerHeight*.4)cur=i});     // 画面の上から4割より上に見出しが来たセクション
+    if(innerHeight+scrollY>=document.documentElement.scrollHeight-4)cur=secs.length-1;    // 一番下まで来たら最後の項目
+    links.forEach((a,i)=>{a.classList.toggle("on",i===cur);i===cur?a.setAttribute("aria-current","true"):a.removeAttribute("aria-current")});
+  };
+  addEventListener("scroll",()=>{if(!busy){busy=true;requestAnimationFrame(spy)}},{passive:true});
+  addEventListener("resize",spy);spy();
+})();
+
+// 初回のみ、下からフェードインして表示（一度表示した要素は再び隠さない）
+(()=>{
+  document.documentElement.classList.add("js");
+  const els=[...document.querySelectorAll(".nav,.art,.title>*,h2,.prose,.cstage>*,.play,.about>*,footer p")];
+  els.forEach(e=>{e.classList.add("rv");if(e.parentNode.classList.contains("title"))e.style.setProperty("--d",([...e.parentNode.children].indexOf(e)*.15).toFixed(2)+"s")});
+  if(!("IntersectionObserver" in window)){els.forEach(e=>e.classList.add("in"));return}
+  const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}}),{threshold:.12,rootMargin:"0px 0px -4% 0px"});
+  els.forEach(e=>io.observe(e));
+})();
+</script>
+</body>
+</html>
