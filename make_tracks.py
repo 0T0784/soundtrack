@@ -78,6 +78,9 @@
       staffroll.png   「Staff Roll」タブのアイコン （staff.png でも可）
       omake.png       「おまけ」タブのアイコン
       ・拡張子は png / jpg / jpeg / webp / gif / svg。大文字小文字・「_」「-」「空白」は無視される
+  ホームページ(home.html)の左側に流す GIF:
+      images/gif/ に GIF を置いて実行すると、名前順（1, 2, 10 の順。数字は数として並べる）に meta.json の "gifs" へ入る
+      （毎回自動で作り直される。GIF が1枚もなければ、ホームの左側は通常のジャケット画像のまま）
   方法2) コマンドで直接指定（meta.json の値を上書きする）
       python make_tracks.py --icon staffroll=images/sr.png --icon omake=images/gift.png
       指定できるキー: emblem / cover / staffroll / omake / disc1 / disc1_cover / disc2 / disc2_cover …
@@ -435,7 +438,15 @@ if gone:
     print(f"※ 音声ファイルが見つからないため meta.json から削除した曲: {len(gone)} 件")
     for k in gone: print("   ", k)
 
+# images/gif/ の GIF を名前順（数字は数として）に並べる ※ホームページ左側のスライドショー用
+gif_dir = img_dir / "gif"
+natural = lambda f: [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", f.name)]
+gifs = [rel(f) for f in sorted(gif_dir.iterdir(), key=natural)
+        if f.is_file() and f.suffix.lower() == ".gif"] if gif_dir.is_dir() else []
+if gifs:
+    print(f"GIFを登録: {len(gifs)}枚（{gif_dir.name}/ 内、名前順）")
+
 out = {"_readme": "このファイルは make_tracks.py が実行のたびに上書き生成します。書き方は make_tracks.py の冒頭を参照。",
-       **cfg, "discs": out_discs}
+       **cfg, "gifs": gifs, "discs": out_discs}
 META.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print(f"meta.json を出力しました（新しい曲 {new_tracks} 曲）")
