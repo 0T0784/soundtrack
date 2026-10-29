@@ -12,6 +12,8 @@
    ・画像 … images/cover.jpg（メインビジュアル）, images/emblem.png（ロゴ）, キャラクター画像は CHAR の img
    ・コンテンツ … 作品の欄（<div class="play">）の題名・説明・リンクを書き換える。欄を増やすときはその div をコピー（左・右の順に並ぶ）
    ・作品の画像 … images/works/ に置く。png / jpg / gif のどれでもOK。<img class="wimg" data-src="images/works/名前"> の「名前」と同じファイル名にする（拡張子は書かなくてよい）。画像が無ければ表示されない
+   ・トレーラー … ストーリー欄の <div class="trailer" data-yt="…"> の data-yt に YouTube のリンク（または動画ID）を貼る。クリックで動画がポップアップ表示される
+   ・ストーリーの背景 … images/omake_bg.png を置くと、ストーリー欄の背景になる（上下はふんわり透明にして馴染ませる）。ファイルが無ければ背景なしのまま
    ・左側のGIF … images/gif/ に置いて make_tracks.py を実行（名前順に、フェードしながら順番に表示。無ければジャケット画像）
 -->
 <style>
@@ -88,6 +90,43 @@ h2::after{content:"";position:absolute;left:50%;top:calc(var(--hs)*1.1 + 6px);wi
    linear-gradient(var(--gilt),var(--gilt)) 56px 14px/calc(100% - 112px) 1.4px no-repeat}
 .prose{max-width:680px;margin:0 auto}
 .prose p{margin:0 0 1.4em}
+/* ストーリー（中央寄せ・字間広め・段落ごとに余白） */
+/* ストーリーの背景（images/omake_bg.png が見つかったときだけ JS が .hasbg を付ける。上下は透明にして馴染ませる） */
+#story{position:relative;--fade:140px}
+#story>.wrap{position:relative;z-index:1}
+#story::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease;
+  background:var(--bg,none) center/cover no-repeat;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 var(--fade),#000 calc(100% - var(--fade)),transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 var(--fade),#000 calc(100% - var(--fade)),transparent 100%)}
+#story.hasbg::before{opacity:1}
+#story.hasbg{padding-bottom:110px}
+.story{max-width:920px;text-align:center;font-size:clamp(1.05rem,2.3vw,1.55rem);letter-spacing:.32em;line-height:2.5;text-wrap:balance}
+.story p{margin:0 0 1.9em;padding-left:.32em}
+.story .hl{color:var(--maple);font-style:normal;white-space:nowrap}
+
+/* トレーラー（サムネイルをクリックで動画をポップアップ） */
+.tsec{padding:24px 24px 0}
+.trailer{max-width:1934px;margin:0 auto}   /* 枠の中の動画部分が最大 1920x1080（16:9） */
+.tframe{padding:6px;border:1px solid var(--gilt)}
+.tin{position:relative;aspect-ratio:16/9;border:1px solid var(--gilt);overflow:hidden;background:#3a2218}
+.tin img{width:100%;height:100%;object-fit:cover;display:block}
+.tbtn{position:absolute;inset:0;width:100%;border:0;padding:0;cursor:pointer;color:var(--gilt);background:rgba(40,20,14,.42);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3em;transition:background .3s}
+.tbtn:hover{background:rgba(40,20,14,.2)}
+.tbtn svg{width:clamp(64px,11vw,116px);height:auto;display:block}
+.tbtn span{font-family:"Playfair Display",serif;font-weight:700;font-size:clamp(1.5rem,4.6vw,3.2rem);letter-spacing:.04em;line-height:1.1}
+.trailer [hidden]{display:none!important}
+.tbtn:disabled{cursor:default}.tbtn:disabled:hover{background:rgba(40,20,14,.42)}
+.trailer .todo{position:absolute;left:50%;bottom:4%;transform:translateX(-50%);margin:0;max-width:90%;text-align:center;background:#fffaf0}
+dialog#tmodal{border:0;padding:0;background:transparent;overflow:visible;max-width:none;max-height:none;width:min(1920px,92vw,calc((100vh - 120px)*16/9))}
+dialog#tmodal::backdrop{background:rgba(20,18,18,.9)}
+.tm-box{position:relative}
+.tm-video{aspect-ratio:16/9;width:100%;background:#000}
+.tm-video iframe{width:100%;height:100%;border:0;display:block}
+.tm-close{position:absolute;right:0;top:-52px;width:42px;height:42px;display:grid;place-items:center;padding:0;cursor:pointer;color:#fff;background:rgba(0,0,0,.35);border:1px solid var(--gilt)}
+.tm-close:hover{background:rgba(255,255,255,.15)}
+.tm-close svg{width:20px;height:20px}
+body:has(dialog[open]){overflow:hidden}
 .todo{color:var(--sub);border:1px dashed var(--gilt);padding:.6em 1em;border-radius:6px;font-size:.92rem}
 
 /* キャラクター（1人） */
@@ -126,10 +165,12 @@ footer p{margin:.2em 0}
   .art{max-width:420px}
   .contents{grid-template-columns:1fr}
   .cstage{grid-template-columns:1fr;text-align:center}
+  #story{--fade:80px}
+  .story{letter-spacing:.18em;line-height:2.3}.story p{padding-left:.18em}
   .nav{flex-wrap:wrap}.listen{display:none}
   .nav li a{font-size:.9rem;letter-spacing:.06em}
 }
-@media(prefers-reduced-motion:reduce){.leaf{display:none}.js .rv{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+@media(prefers-reduced-motion:reduce){#story::before{transition:none}.leaf{display:none}.js .rv{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -161,12 +202,36 @@ footer p{margin:.2em 0}
     </div>
   </div>
 
+  <section class="tsec">
+  <!-- ★ トレーラー: data-yt に YouTube のリンク（https://www.youtube.com/watch?v=… や https://youtu.be/… でOK）を貼る。サムネイルは自動。好きな画像にしたいときだけ data-thumb="images/trailer.jpg" のように書く -->
+  <div class="trailer" data-yt="" data-thumb="">
+    <div class="tframe"><div class="tin">
+      <img class="tthumb" alt="" hidden>
+      <button class="tbtn" type="button" aria-label="トレーラーを再生">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 96 50 50 96 4 50Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M50 14 86 50 50 86 14 50Z" fill="none" stroke="currentColor" stroke-width="1" opacity=".7"/><path d="M42 34 70 50 42 66Z" fill="currentColor"/></svg>
+        <span>Play Trailer</span>
+      </button>
+      <p class="todo" hidden>ここにトレーラーの YouTube リンクを貼ってください（<code>class="trailer"</code> の <code>data-yt</code>）。</p>
+    </div></div>
+  </div>
+  </section>
+
   <section id="story"><div class="wrap">
     <h2 data-en="Story">ストーリー</h2>
-    <div class="prose">
+    <div class="prose story">
    <!--  <p class="todo">ここにアルバムの物語（コンセプトやあらすじ）を書いてください。<code>home.html</code> の <code>id="story"</code> の中です。</p> -->
-      <p>紅葉に染まる里の、誰も知らない記録。</p>
+      <!-- 書き方: 段落ごとに <p>…</p>／行の途中で改行したい所は <br>／赤くしたい言葉は <em class="hl">…</em> で囲む
+      <p>1つめの段落の文章。</p>
+      <p>文章の<em class="hl">赤くしたい言葉</em>と<br>改行したあとの文章。</p>
+      -->
+      <p>秋が深まり、世界が<em class="hl">紅葉に染まる</em>頃。</p>
+      <p>それは、どこにでもある穏やかな日々のはずだった。<br>
+        けれど、いつからか季節の流れに<em class="hl">異変</em>が生じ始める。<br>
+        これは、そんな世界で紡がれた<em class="hl">小さな物語</em>。</p>
+      <p>とある少女が<em class="hl">魔導書</em>に書き記した<br>
+        ある日の<em class="hl">紅葉に染まる世界の記録</em>。</p>
     </div>
+
   </div></section>
 
   <section id="chara"><div class="wrap">
@@ -210,6 +275,13 @@ footer p{margin:.2em 0}
   <p>一部作品は東方Projectの二次創作です。</p>
   <p>無断転載はご遠慮ください。</p>
 </footer>
+
+<dialog id="tmodal" aria-label="トレーラー">
+  <div class="tm-box">
+    <button class="tm-close" type="button" aria-label="閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3 21 21M21 3 3 21" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+    <div class="tm-video" id="tmvideo"></div>
+  </div>
+</dialog>
 
 <script>
 /* ★ キャラクター（1人）: 名前・強調する文字の位置(hl: 0始まり)・ローマ字・説明(2行)・画像(images/…)を書き換える */
@@ -262,6 +334,38 @@ document.querySelectorAll(".wimg").forEach(img=>{
   img.onerror=next;next();
 });
 
+// トレーラー: data-yt の YouTube リンク（または動画ID）からサムネイルを出し、クリックで動画をポップアップ表示
+(()=>{
+  const box=document.querySelector(".trailer"); if(!box)return;
+  const raw=(box.dataset.yt||"").trim();
+  const m=raw.match(/(?:[?&]v=|youtu\.be\/|embed\/|shorts\/|live\/)([\w-]{11})/)||raw.match(/^([\w-]{11})$/);
+  const id=m&&m[1];
+  const thumb=box.querySelector(".tthumb"), btn=box.querySelector(".tbtn"), none=box.querySelector(".todo");
+  if(!id){none.hidden=false;btn.disabled=true;return}    // 未設定のあいだは案内の枠だけ
+  const custom=(box.dataset.thumb||"").trim();
+  thumb.src=custom||`https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
+  thumb.onerror=()=>{thumb.onerror=null;thumb.src=`https://i.ytimg.com/vi/${id}/hqdefault.jpg`};   // 高画質が無い動画は標準サイズに
+  thumb.hidden=btn.hidden=false;
+  const dlg=$("tmodal"), vid=$("tmvideo");
+  btn.onclick=()=>{
+    if(!dlg.showModal){open("https://www.youtube.com/watch?v="+id,"_blank","noopener");return}
+    const f=document.createElement("iframe");
+    f.src=`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+    f.title="トレーラー";f.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";f.allowFullscreen=true;f.referrerPolicy="strict-origin-when-cross-origin";
+    vid.replaceChildren(f);dlg.showModal();
+  };
+  dlg.querySelector(".tm-close").onclick=()=>dlg.close();
+  dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});     // 暗い所をクリックでも閉じる（Escキーも可）
+  dlg.addEventListener("close",()=>vid.replaceChildren());               // 閉じたら動画も止める
+})();
+
+// ストーリーの背景: images/omake_bg.png があるときだけ表示（無ければ今のまま）
+(()=>{
+  const i=new Image();
+  i.onload=()=>{const s=$("story");s.style.setProperty("--bg",`url("${i.src}")`);s.classList.add("hasbg")};
+  i.src="images/omake_bg.png";
+})();
+
 // ヒーローに舞う落ち葉（ここだけの控えめな動き）
 if(!matchMedia("(prefers-reduced-motion: reduce)").matches){
   const hero=document.querySelector(".hero");
@@ -290,7 +394,7 @@ if(!matchMedia("(prefers-reduced-motion: reduce)").matches){
 // 初回のみ、下からフェードインして表示（一度表示した要素は再び隠さない）
 (()=>{
   document.documentElement.classList.add("js");
-  const els=[...document.querySelectorAll(".nav,.art,.title>*,h2,.prose,.cstage>*,.play,.about>*,footer p")];
+  const els=[...document.querySelectorAll(".nav,.art,.title>*,h2,.prose,.trailer,.cstage>*,.play,.about>*,footer p")];
   els.forEach(e=>{e.classList.add("rv");if(e.parentNode.classList.contains("title"))e.style.setProperty("--d",([...e.parentNode.children].indexOf(e)*.15).toFixed(2)+"s")});
   if(!("IntersectionObserver" in window)){els.forEach(e=>e.classList.add("in"));return}
   const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}}),{threshold:.12,rootMargin:"0px 0px -4% 0px"});
