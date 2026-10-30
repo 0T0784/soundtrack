@@ -293,7 +293,7 @@ const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=nu
 (()=>{
   const fig=el("div","cfig"), box=el("div");
   const ph=()=>{fig.replaceChildren(el("span","","🍂"))};
-  if(CHAR.img){const i=new Image();i.alt=CHAR.name;i.onerror=ph;i.src=CHAR.img;fig.append(i)}else ph();
+  if(CHAR.img){const i=new Image();i.alt=CHAR.name;i.onerror=ph;i.src=0to784.PNG;fig.append(i)}else ph();
   const nm=el("h3","cname");
   [...CHAR.name].forEach((c,k)=>nm.append(k===CHAR.hl?el("b","",c):c));
   box.append(nm,el("p","croman",CHAR.roman),el("p","ctext",""));
