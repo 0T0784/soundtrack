@@ -285,7 +285,7 @@ footer p{margin:.2em 0}
 
 <script>
 /* ★ キャラクター（1人）: 名前・強調する文字の位置(hl: 0始まり)・ローマ字・説明(2行)・画像(images/…)を書き換える */
-const CHAR={name:"キャラクター名",hl:2,roman:"CHARACTER NAME",text:["紹介文の1行目をここに書きます","紹介文の2行目をここに書きます"],img:""};
+const CHAR={name:"緋宮　奏",hl:2,roman:"HIMIYA KANADE",text:["紹介文の1行目をここに書きます","紹介文の2行目をここに書きます"],img:"images/0to784.PNG"};
 const $=id=>document.getElementById(id);
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 
@@ -293,7 +293,7 @@ const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=nu
 (()=>{
   const fig=el("div","cfig"), box=el("div");
   const ph=()=>{fig.replaceChildren(el("span","","🍂"))};
-  if(CHAR.img){const i=new Image();i.alt=CHAR.name;i.onerror=ph;i.src=0to784.PNG;fig.append(i)}else ph();
+  if(CHAR.img){const i=new Image();i.alt=CHAR.name;i.onerror=ph;i.src=CHAR.img;fig.append(i)}else ph();
   const nm=el("h3","cname");
   [...CHAR.name].forEach((c,k)=>nm.append(k===CHAR.hl?el("b","",c):c));
   box.append(nm,el("p","croman",CHAR.roman),el("p","ctext",""));
