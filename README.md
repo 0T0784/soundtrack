@@ -1,6 +1,6 @@
 # 牛屎院風土記　〜 Unknown Chronicles of Hidden Land
 
-htmlサウンドトラック　ver 1.04a
+htmlサウンドトラック　ver 1.05
 
 **README 私を読んで**　／　著者: オト
 
