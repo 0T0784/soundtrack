@@ -52,7 +52,11 @@ e-mail: [xrin0to784@gmail.com](mailto:xrin0to784@gmail.com)
 
 ### ver 1.04a　（26/10/28）
 
-- readmeをmarkdown形式に変更しました。
+- index.htmlをホームページに変更し、サウンドトラックをsoundtrack.htmlに変更しました。
+
+### ver 1.04a　（26/10/28）
+
+- READMEをmarkdown形式に変更しました。
 
 ### ver 1.04　（26/10/28）
 
