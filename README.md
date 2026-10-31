@@ -50,7 +50,7 @@ e-mail: [xrin0to784@gmail.com](mailto:xrin0to784@gmail.com)
 
 ## ◆６．バージョン情報
 
-### ver 1.04a　（26/10/28）
+### ver 1.05　（26/10/28）
 
 - index.htmlをホームページに変更し、サウンドトラックをsoundtrack.htmlに変更しました。
 
