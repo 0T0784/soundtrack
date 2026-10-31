@@ -7,7 +7,7 @@ htmlサウンドトラック　ver 1.05
 | Album | 牛屎院風土記　〜 Unknown Chronicles of Hidden Land. |
 | --- | --- |
 | Composer | 0to784 |
-|  Release | 2026.11.21 |
+| Release | 2026.11.21 |
 
 ## ◆０．目次
 
