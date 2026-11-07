@@ -17,19 +17,44 @@
       "name": "オト",
       "role": "プログラム・グラフィック・メインコンポーザー",
       "text": "知る人ぞ知る、ほどにも知られていない自称クリエイター",
-      "icon": "images/staff1.png"
+      "icon": "images/staff/01_0to784.png"
     },
     {
       "name": "hika0906ru / koukou0906",
       "role": "ゲストコンポーザー",
-      "text": "口下手で紙に絵を描くことが好きです。\n好きなゲームは\n星のカービィとぷよテトと\nUNDERTALEとDeltaruneと\nロックマンと悪魔城ドラキュラと\nストリートファイターと色とりどりです。"
-    }
+      "text": "口下手で紙に絵を描くことが好きです。\n好きなゲームは\n星のカービィとぷよテトと\nUNDERTALEとDeltaruneと\nロックマンと悪魔城ドラキュラと\nストリートファイターと色とりどりです。",
+      "icon": "images/staff/02_hika0906ru.png"
+    },
+  {
+      "name": "ryusirou612",
+      "role": "HTML完成を祈った人",
+      "text": "ゲームに生活を支配されしもの。\nS-BLAST92大好きマン",
+      "icon": "images/staff/03_ryusirou612.png"
+  },
+  {
+      "name": "doufuyu",
+      "role": "ストーリーシナリオを少し手伝ってくれた人",
+      "text": "ぶいちゃにいます。",
+      "icon": "images/staff/04_doufuyu.png"
+  },
+  {
+      "name": "mokoyukkuri",
+      "role": "ジャケットキャラクターの原案を手伝ってくれた人",
+      "text": "イラスト投稿やゆっくり実況の動画投稿などしてます‼︎",
+      "icon": "images/staff/05_mokoyukkuri.png"
+  },
+  {
+      "name": "litfo",
+      "role": "ジャケットキャラクターの原案を手伝ってくれた人",
+      "text": "イラストを描いている韓国人の方です。",
+      "icon": "images/staff/05_mokoyukkuri.png"
+  }
   ]
   },
   "omake": {
     "label": "おまけ",
     "url": "omake.html",
-    "sound": "se/trophy.mp3",
+    "sound": "audio/trophy.mp3",
     "title": "スタッフロール完走",
     "text": "「おまけ」が解放されました",
     "icon": ""
