@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>サウンドトラックプレイヤー</title>
+<title>牛屎院風土記　〜 Unknown Chronicles of Hidden Land</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -52,6 +52,8 @@ main{display:grid;grid-template-columns:1.55fr 1fr;gap:26px}
 .vbox{background:#000;border:1px solid var(--line);border-radius:14px;overflow:hidden;height:330px;display:flex;align-items:center;justify-content:center;position:relative}
 .vbox video{width:100%;height:100%;object-fit:contain;background:#000;display:block}
 .vbox .mmiss{position:absolute;padding:0 16px}
+#ytbox{width:100%;height:100%}
+#ytbox iframe{width:100%;height:100%;border:0;display:block}
 .hr{display:flex;align-items:center;gap:16px}
 .help{background:none;border:0;color:#b59a80;cursor:pointer;padding:0;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;transition:.15s}
 .help:hover{color:var(--deep2);background:var(--hl)}
@@ -83,6 +85,20 @@ main{display:grid;grid-template-columns:1.55fr 1fr;gap:26px}
 .ttx small{font-family:Cinzel,serif;font-size:11px;letter-spacing:.12em;color:#f0c46a}
 .ttx b{font-size:16px;font-weight:600}
 .ttx span{font-size:12px;color:#e9d3b0}
+.notice{margin:8px 4px 0;font-size:11px;line-height:1.3;color:var(--sub);letter-spacing:.02em}
+.staffinfo{display:none;flex:1;min-height:0;width:100%;overflow:auto;padding:2px 8px 2px 2px;scrollbar-width:thin;scrollbar-color:var(--deep) transparent}
+.staffinfo h3{margin:0 0 6px;font-size:15px;font-weight:600;letter-spacing:.3em;color:var(--deep);border-bottom:1px solid var(--line);padding-bottom:6px}
+.sf{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.sf .ic{flex:none;width:46px;height:46px;border-radius:50%;background:#fffaf0;border:2px solid #e0b25a88;display:grid;place-items:center;overflow:hidden;font-size:20px}
+.sf .ic img{width:100%;height:100%;object-fit:cover;display:block}
+.sf b{display:block;font-size:15px;line-height:1.4}
+.sf small{display:block;color:var(--sub);font-size:12px;margin:1px 0 4px}
+.sf p{margin:0;font-size:13px;line-height:1.7;white-space:pre-line}
+.sf.hint p{color:var(--sub)}
+/* スタッフロール表示中: 下の再生バーを隠し、右側をスタッフ紹介にする（動画自身のコントロールで操作） */
+.staffmode .player{display:none}
+.staffmode .artbox,.staffmode .meta{display:none}
+.staffmode .staffinfo{display:block}
 .bd{font-size:10px;color:var(--deep2);border:1px solid var(--deep2);border-radius:999px;padding:0 7px;margin-left:8px;white-space:nowrap}
 .player{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 18px;
   display:grid;grid-template-columns:1fr 1.5fr;gap:18px;align-items:center}
@@ -131,7 +147,9 @@ canvas{grid-column:1/-1;width:100%;height:34px}
   .art{width:min(100%,250px);width:min(250px,100cqw,100cqh)}
   .meta{flex:none;font-size:14px;gap:3px 10px}
   .player{margin-top:14px}
+  .staffmode main{grid-template-columns:1.9fr 1fr}
   .np .nm{font-size:18px}
+  .notice{position:absolute;left:36px;bottom:4px;margin:0;font-size:11.5px}
 }
 @media(max-width:760px){
   main,.player{grid-template-columns:1fr}.vbox{height:auto;aspect-ratio:16/9}.btns{gap:6px}.list{height:260px}.os{display:none}
@@ -178,7 +196,12 @@ canvas{grid-column:1/-1;width:100%;height:34px}
  4) 画像の登録: images/ に emblem.png / cover.png / disc1.png / disc1_cover.png / staffroll.png / omake.png などを
     置いて make_tracks.py を実行すると自動で登録される
     （コマンドで指定する場合: python make_tracks.py --icon omake=images/x.png）
- 5) スタッフロール(動画): タブ「Staff Roll」で動画を表示。下のプレイヤーのボタンで操作できる（音楽とは同時に鳴らない）
+ 5) スタッフロール(動画): タブ「Staff Roll」で動画を表示。下の再生バーは隠れ、動画自身のコントロールで操作する（音楽とは同時に鳴らない）
+    右側にはスタッフ紹介を表示: meta.json の "staffroll" の "staff" に書く
+      "staff": [ { "name": "オト", "role": "作曲・制作", "text": "ひとこと（改行できる）", "icon": "images/staff1.png" } ]
+      （role・text・icon は省略可。icon が無い・読めないときは🍂。何も書かないと、書き方のヒントを表示）
+    YouTube を使うときは meta.json の "staffroll" の "youtube" にリンクかID（または make_tracks.py --youtube リンク）。
+    設定すると mp4 の代わりに YouTube を表示する。※ YouTube は file:// では再生できない／波形は疑似アニメーション
  6) おまけ(トロフィー演出): スタッフロール動画を最後まで再生すると、効果音とともに右からバナーが出て、
     スタッフロールの右に「おまけ」タブがフェードインする。押すと omake.html へ移動。
     再読み込みすると非表示に戻る（保存しない）。meta.json の "omake" で設定
@@ -203,6 +226,7 @@ canvas{grid-column:1/-1;width:100%;height:34px}
     <div class="list" id="list"></div>
     <div class="vbox" id="vbox" hidden>
       <video id="sv" controls playsinline preload="metadata"></video>
+      <div id="ytbox" hidden><div id="ytp"></div></div>
       <p id="svmiss" class="mmiss" hidden></p>
     </div>
     <div class="side">
@@ -214,6 +238,7 @@ canvas{grid-column:1/-1;width:100%;height:34px}
         <span class="ar" hidden>Original Song :</span><div class="ar" id="mSong" hidden></div>
         <span>Release :</span><div>2026.11.21</div>
       </div>
+      <div class="staffinfo" id="staffinfo"></div>
     </div>
   </main>
 
@@ -238,6 +263,7 @@ canvas{grid-column:1/-1;width:100%;height:34px}
     </div>
   </div>
 
+  <p class="notice">一部作品は東方Projectの二次創作です。</p>
   <div id="trophy" class="trophy" aria-hidden="true">
     <div class="tic"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/><path d="M12 14v4M8.5 20h7"/></svg></div>
     <div class="ttx"><small>TROPHY UNLOCKED</small><b id="tTitle"></b><span id="tText"></span></div>
@@ -314,12 +340,12 @@ const fmt=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+":"+String(
 const cur=()=>VERSIONS[vi].tracks[ti];
 // 曲の長さは meta.json の duration（make_tracks.py が正確に測定）を基準にする。
 // ブラウザが推定した長さ(audio.duration)は、Rangeに対応しないサーバーや一部のmp3で不正確になるため、duration が無いときだけ使う
-const dur=()=>staff?(isFinite(sv.duration)?sv.duration:0):(cur().d>0?cur().d:(cur().src&&isFinite(au.duration)?au.duration:0));
+const dur=()=>staff?(useYT()?(ytOK()?(ytp.getDuration()||0):0):(isFinite(sv.duration)?sv.duration:0)):(cur().d>0?cur().d:(cur().src&&isFinite(au.duration)?au.duration:0));
 
 let staff=false;   // true: スタッフロール(動画)タブを表示中
 let omakeShown=false, omakeFade=false;   // 再読み込みすると false に戻る(保存はしない)
 const OM=()=>Object.assign({label:"おまけ",url:"omake.html",sound:"se/trophy.mp3",title:"スタッフロール完走",text:"「おまけ」が解放されました",icon:""},SITE.omake||{});
-const SR=()=>Object.assign({label:"Staff Roll",video:"staffroll.mp4",poster:"",icon:""},SITE.staffroll||{});
+const SR=()=>Object.assign({label:"Staff Roll",video:"staffroll.mp4",youtube:"",poster:"",icon:"",staff:[]},SITE.staffroll||{});
 function renderTabs(){
   $("tabs").innerHTML=VERSIONS.map((v,i)=>`<button class="tab ${!staff&&i===vi?"on":""}" data-i="${i}"><span class="ti"></span>${esc(v.name)}</button>`).join("")
     +`<button class="tab ${staff?"on":""}" data-staff="1"><span class="ti"></span>${esc(SR().label)}</button>`
@@ -349,20 +375,45 @@ function npUI(){
   if(staff){$("nm").textContent=SR().label;$("al").textContent=VERSIONS[vi].album||""}
   else{$("nm").textContent=cur().t;$("al").textContent=VERSIONS[vi].album}
 }
+// スタッフ紹介（meta.json の staffroll.staff。無いときは書き方のヒントを表示）
+function renderStaff(){
+  const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+  const box=$("staffinfo"), list=Array.isArray(SR().staff)?SR().staff:[];
+  const mk=(s,hint)=>{
+    const d=el("div","sf"+(hint?" hint":"")), ic=el("div","ic"), tx=el("div");
+    if(s.icon){const i=new Image();i.alt="";i.onload=()=>ic.replaceChildren(i);i.src=s.icon}
+    ic.textContent=hint?"🍁":"🍂";
+    tx.append(el("b","",s.name||""));
+    if(s.role)tx.append(el("small","",s.role));
+    if(s.text)tx.append(el("p","",s.text));
+    d.append(ic,tx);return d;
+  };
+  box.replaceChildren(el("h3","","スタッフ"),...(list.length?list.map(s=>mk(s)):
+    [mk({name:"スタッフ名",role:"担当",text:"meta.json の staffroll.staff にスタッフを書くと、ここに紹介が表示されます。"},true)]));
+}
 function showView(){
   $("list").hidden=staff; $("vbox").hidden=!staff;
+  document.querySelector(".frame").classList.toggle("staffmode",staff);   // 再生バーを隠し、右側をスタッフ紹介にする
+  if(staff)renderStaff();
   $("prev").disabled=$("next").disabled=staff;        // 動画中は前へ/次へは使えない
   if(staff){
     au.pause(); stopTimer();                           // 音楽は止める(動画の音と重ならないように)
     const c=SR();
-    if(!sv.getAttribute("src")){
-      $("svmiss").hidden=true; sv.hidden=false;
-      if(c.poster)sv.poster=c.poster;
-      sv.onerror=()=>{sv.hidden=true;$("svmiss").hidden=false;$("svmiss").innerHTML=esc(c.video)+" が見つかりません<br>HTMLと同じ場所に置いてください"};
-      sv.src=c.video;
+    if(useYT()){                                       // YouTube のリンクが設定されているとき
+      sv.hidden=true; $("ytbox").hidden=false; $("svmiss").hidden=true;
+      ytInit();
+      playing=ytOK()&&ytp.getPlayerState()===1;
+    }else{
+      $("ytbox").hidden=true;
+      if(!sv.getAttribute("src")){
+        $("svmiss").hidden=true; sv.hidden=false;
+        if(c.poster)sv.poster=c.poster;
+        sv.onerror=()=>{sv.hidden=true;$("svmiss").hidden=false;$("svmiss").innerHTML=esc(c.video)+" が見つかりません<br>HTMLと同じ場所に置いてください"};
+        sv.src=c.video;
+      }
+      playing=!sv.paused;
     }
-    playing=!sv.paused;
-  }else{ sv.pause(); playing=false; }
+  }else{ sv.pause(); ytWant=false; if(ytOK())ytp.pauseVideo(); playing=false; }
   ppIcon(); npUI(); update();
 }
 function renderList(){
@@ -389,6 +440,11 @@ function load(play){
 function ppIcon(){$("pp").innerHTML=playing?IC.pause:IC.play}
 function setPlay(p){
   if(staff){            // スタッフロール表示中は動画を操作(状態は video のイベントで更新)
+    if(useYT()){        // YouTube（状態は onStateChange で更新）
+      if(p){if(ytOK())ytp.playVideo();else{ytWant=true;ytInit()}}
+      else{ytWant=false;if(ytOK())ytp.pauseVideo()}
+      return;
+    }
     if(p){ensureGraph(); if(actx&&actx.state==="suspended")actx.resume(); sv.play().catch(()=>{playing=false;ppIcon()})}
     else sv.pause();
     return;
@@ -414,8 +470,60 @@ function next(auto){
 }
 function prev(){ if(time()>3){seek(0);return} ti=(ti-1+VERSIONS[vi].tracks.length)%VERSIONS[vi].tracks.length; load(true) }
 const sv=$("sv"); sv.loop=false;   // リピート時は ended 後に自前で頭出し(最後まで見たことを検知するため)
-const time=()=>staff?(sv.currentTime||0):(cur().src?au.currentTime:pos);
-function seek(s){ if(staff){if(isFinite(sv.duration))sv.currentTime=s} else if(cur().src)au.currentTime=s; else pos=s; update() }
+
+/* ===== YouTube（meta.json の staffroll.youtube にリンクかIDがあるとき、mp4 の代わりに使う）=====
+   YouTube の埋め込みプレイヤーは Referer が必要なため、file:// では再生できない（GitHub Pages や python serve.py で開く）。
+   音声は別ドメインのため、波形は実際の音には反応せず、疑似アニメーションになる。 */
+const ytId=u=>{
+  const s=String(u||"").trim(); if(!s)return "";
+  if(/^[\w-]{11}$/.test(s))return s;
+  try{
+    const x=new URL(s);
+    if(/(^|\.)youtu\.be$/.test(x.hostname))return x.pathname.slice(1).split("/")[0];
+    const v=x.searchParams.get("v"); if(v)return v;
+    const m=x.pathname.match(/\/(?:embed|shorts|live|v)\/([\w-]{11})/); if(m)return m[1];
+  }catch(e){}
+  return "";
+};
+const useYT=()=>!!ytId(SR().youtube);
+let ytp=null, ytReady=false, ytWant=false, ytLoading=false;
+const ytOK=()=>!!(ytp&&ytReady&&typeof ytp.getCurrentTime==="function");
+function ytApplyVol(){ if(!ytOK())return; ytp.setVolume(Math.round(vol*100)); muted?ytp.mute():ytp.unMute() }
+function ytError(c){
+  const msg={2:"YouTube の動画IDが正しくありません",100:"YouTube の動画が見つからないか、非公開です",101:"この動画は埋め込み再生が許可されていません",150:"この動画は埋め込み再生が許可されていません",
+    153:"YouTube は file:// では再生できません。GitHub Pages か、python serve.py で開いてください",api:"YouTube の読み込みに失敗しました。ネットワークを確認してください"};
+  $("ytbox").hidden=true; $("svmiss").hidden=false; $("svmiss").textContent=msg[c]||("YouTube を再生できません（エラー "+c+"）");
+  playing=false; ppIcon();
+}
+function ytState(s){                 // 1:再生 2:一時停止 0:終了
+  if(!staff)return;
+  if(s===1){playing=true;ppIcon()}
+  else if(s===2){playing=false;ppIcon()}
+  else if(s===0){playing=false;ppIcon();staffEnded()}
+  update();
+}
+function ytInit(){
+  if(ytp||ytLoading)return;
+  if(!/^https?:$/.test(location.protocol)){ytError(153);return}
+  ytLoading=true;
+  const make=()=>{
+    ytp=new YT.Player("ytp",{width:"100%",height:"100%",videoId:ytId(SR().youtube),
+      playerVars:{playsinline:1,rel:0,modestbranding:1,origin:location.origin},
+      events:{
+        onReady:()=>{ytReady=true;ytApplyVol();update();if(ytWant){ytWant=false;ytp.playVideo()}},
+        onStateChange:e=>ytState(e.data),
+        onError:e=>ytError(e.data)}});
+    setInterval(()=>{if(staff&&ytOK())update()},250);        // 再生位置の表示を更新（YouTube には timeupdate が無い）
+  };
+  if(window.YT&&window.YT.Player)make();
+  else{
+    window.onYouTubeIframeAPIReady=make;
+    const s=document.createElement("script"); s.src="https://www.youtube.com/iframe_api"; s.onerror=()=>ytError("api"); document.head.append(s);
+  }
+}
+
+const time=()=>staff?(useYT()?(ytOK()?ytp.getCurrentTime():0):(sv.currentTime||0)):(cur().src?au.currentTime:pos);
+function seek(s){ if(staff){if(useYT()){if(ytOK())ytp.seekTo(s,true)}else if(isFinite(sv.duration))sv.currentTime=s} else if(cur().src)au.currentTime=s; else pos=s; update() }
 function update(){
   const d=dur(), c=time();
   $("cur").textContent=fmt(c); $("dur").textContent=fmt(d);
@@ -452,14 +560,17 @@ function unlockOmake(){                      // スタッフロールを最後�
   clearTimeout(trophyTimer);
   trophyTimer=setTimeout(()=>{tr.classList.remove("show");tr.setAttribute("aria-hidden","true")},6000);
 }
-sv.addEventListener("ended",()=>{
-  if(!staff)return;
+function staffEnded(){                        // スタッフロールを最後まで見たとき（mp4 / YouTube 共通）
   unlockOmake();
-  if(repeat>0){sv.currentTime=0;sv.play().catch(()=>{})}
-});
+  if(repeat>0){                               // リピート中は頭から再生し直す
+    if(useYT()){if(ytOK()){ytp.seekTo(0,true);ytp.playVideo()}}
+    else{sv.currentTime=0;sv.play().catch(()=>{})}
+  }
+}
+sv.addEventListener("ended",()=>{if(staff)staffEnded()});
 ["pause","ended"].forEach(ev=>sv.addEventListener(ev,()=>{if(staff){playing=false;ppIcon()}}));
 /* 隠しコマンド(mp4が無くてもおまけ演出をテストできる)
-   ※ どちらも「スタッフロール」タブを選択している間だけ有効
+   ※ どちらも「スタッフロール」タブを選択している間だけ有効（再生バーを隠している間、再生ボタンの3連続は使えない。testOmake() はコンソールから使える）
    ・シャッフル=オン かつ 全曲リピート の状態で、再生ボタンを他のボタンを挟まず3回連続で押す
    ・ブラウザのコンソール(F12)で  testOmake()  = 演出を何度でも再生 /  resetOmake()  = おまけタブを隠して元に戻す */
 window.testOmake=()=>{
@@ -492,6 +603,7 @@ function applyVol(){
   [[au,nodes.au],[$("sv"),nodes.sv]].forEach(([e,n])=>{
     if(n){e.volume=1;e.muted=false}else{e.volume=vol;e.muted=muted}
   });
+  ytApplyVol();                                   // YouTube は Web Audio に接続できないので、プレイヤー自身の音量を操作
 }
 const sameOrigin=u=>{try{return !!u&&new URL(u,location.href).origin===location.origin}catch(e){return false}};
 function ensureGraph(){   // http(s)で開いたときだけ。再生開始時(ユーザー操作中)に作る
@@ -505,7 +617,7 @@ function ensureGraph(){   // http(s)で開いたときだけ。再生開始時(�
       fbuf=new Uint8Array(an.frequencyBinCount);
     }
     if(!nodes.au&&sameOrigin(cur().src)){nodes.au=actx.createMediaElementSource(au);nodes.au.connect(an)}
-    if(!nodes.sv&&sameOrigin(SR().video)){nodes.sv=actx.createMediaElementSource($("sv"));nodes.sv.connect(an)}
+    if(!nodes.sv&&!useYT()&&sameOrigin(SR().video)){nodes.sv=actx.createMediaElementSource($("sv"));nodes.sv.connect(an)}
     applyVol();
   }catch(e){console.warn("audio graph",e)}
 }

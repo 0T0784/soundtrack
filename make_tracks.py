@@ -53,11 +53,18 @@
         → 曲の番号（例: 3 / 1,3 / 2-4 / all）を入力 → Composer、アレンジ曲か(y/n)、原作名、原曲名 を順に入力
         → Enter だけで「変更なし」、 - だけを入力すると「空にする」
   方法C) CSV で一括設定（track01.ogg 〜 など、全曲に名前・Composer・アレンジ情報を付けるとき便利）
-      python make_tracks.py --export-csv tracks.csv   # 全曲の一覧を CSV に書き出す（Excel / メモ帳で編集）
-      （tracks.csv の name / composer / arrange / original / original_song 列を埋めて保存。file 列は変えない）
-      python make_tracks.py --import-csv tracks.csv   # CSV の内容を反映して meta.json を出力
+      ★ 実行すると、同じフォルダの tracks.csv を自動で参照します（--import-csv の指定は不要）
+      1. python make_tracks.py を実行 → tracks.csv が自動で作られる（全曲の一覧。Excel / メモ帳で開ける）
+      2. tracks.csv の name / composer / arrange / original / original_song 列を埋めて保存（file 列は変えない。
+         title_now 列は「今の曲名」を見るための参考用で、編集しても反映されない）
+      3. もう一度実行 → CSV の内容が meta.json に反映され、tracks.csv も最新の内容で書き直される
+      ・CSV と meta.json の「更新日時が新しい方」を優先する: CSV を保存し直したあとなら CSV の内容を反映し、
+        meta.json を手で直したあとなら CSV は反映せず、meta.json の内容で CSV を書き直す
       ・CSV の内容がそのまま反映される（空欄 = 空にする）。original / original_song が入っている行は arrange 欄が false でも true になる
-      ・CSV に載っていない曲は変更されない。文字コードは UTF-8（BOM 付き）
+      ・CSV に載っていない曲は変更されない（新しい曲は実行後に CSV へ追加される）。文字コードは UTF-8（BOM 付き）
+      ・Excel で tracks.csv を開いたままだと書き直せないので、閉じてから実行する（その旨の警告が出る）
+      ・オプション: --csv 別名.csv（参照するCSVを変える） / --no-csv（CSV を使わない）
+      ・--import-csv 名前.csv で更新日時に関係なく強制的に反映、--export-csv 名前.csv で別の場所にも書き出せる
   方法B) コマンドで直接指定
       python make_tracks.py --track "disc2/01_曲名.wav" arrange=true original="東方紅魔郷" original_song="明治十七年の上海アリス"
       python make_tracks.py --track disc2:3 composer="別の作曲者"     # Disc 2 の3曲目
@@ -81,6 +88,18 @@
   ホームページ(home.html)の左側に流す GIF:
       images/gif/ に GIF を置いて実行すると、名前順（1, 2, 10 の順。数字は数として並べる）に meta.json の "gifs" へ入る
       （毎回自動で作り直される。GIF が1枚もなければ、ホームの左側は通常のジャケット画像のまま）
+  スタッフロールのタブ: 下の再生バーが隠れ、右側にスタッフ紹介が出る（動画自身のコントロールで操作する）。
+      meta.json の "staffroll" の "staff" に書く（実行しても消えず、そのまま引き継がれる）:
+        "staff": [
+          { "name": "オト", "role": "作曲・制作", "text": "ひとこと（\n で改行できる）", "icon": "images/staff1.png" }
+        ]
+      ・role / text / icon は省略可。icon が無い・読めないときは🍂が出る。何も書かなければ書き方のヒントが出る
+  スタッフロールを YouTube にする（mp4 の代わりに YouTube の動画を表示。下のプレイヤーのボタンで再生・シークもできる）:
+      python make_tracks.py --youtube https://youtu.be/xxxxxxxxxxx      # リンク（watch?v= 形式や動画IDだけでも可）
+      python make_tracks.py --youtube ""                                # mp4 に戻す
+      ・meta.json の "staffroll" の "youtube" に書いてもよい。設定されていれば mp4 より優先される
+      ・動画は「埋め込みを許可」にしておく（限定公開・公開は可、非公開は不可）
+      ・YouTube は file:// では再生できないので、GitHub Pages か python serve.py で開く
   方法2) コマンドで直接指定（meta.json の値を上書きする）
       python make_tracks.py --icon staffroll=images/sr.png --icon omake=images/gift.png
       指定できるキー: emblem / cover / staffroll / omake / disc1 / disc1_cover / disc2 / disc2_cover …
@@ -88,7 +107,8 @@
 
 ■ 使い方
   pip install mutagen
-  python make_tracks.py                      # audio/ と images/ を走査して meta.json を上書き
+  make_tracks.bat                            # Windows: ダブルクリックで実行（Python と mutagen が無ければ案内・自動インストール）
+  python make_tracks.py                      # audio/ と images/ を走査して meta.json を上書き（tracks.csv も参照）
   python make_tracks.py my_audio             # 音声フォルダ名を変えたい場合
   python make_tracks.py --images my_images   # 画像フォルダ名を変えたい場合
   曲や画像を追加・変更したら再実行する。
@@ -98,7 +118,7 @@
     （python -m http.server は音声のシークに必要な Range リクエストに対応しておらず、曲の長さやシークバーが
       ずれる原因になるので、付属の serve.py を使ってください）
 """
-import argparse, copy, csv, json, re, sys, unicodedata
+import argparse, copy, csv, json, os, re, sys, unicodedata
 from pathlib import Path
 from mutagen import File
 
@@ -117,6 +137,9 @@ ap.add_argument("--track", action="append", nargs="+", default=[], metavar="ARG"
 ap.add_argument("--export-csv", metavar="PATH", help="全曲の属性を CSV に書き出す（Excel 等で一括編集用）")
 ap.add_argument("--import-csv", metavar="PATH", help="CSV の内容を曲の属性に反映する（--export-csv で作った形式）")
 ap.add_argument("-i", "--interactive", action="store_true", help="対話モードで曲の属性を設定")
+ap.add_argument("--csv", default="tracks.csv", metavar="PATH", help="自動で参照・書き出しする CSV（既定: tracks.csv）")
+ap.add_argument("--no-csv", action="store_true", help="CSV の自動参照・書き出しをしない")
+ap.add_argument("--youtube", metavar="URL", help="スタッフロールを YouTube にする（リンクか動画ID。空にすると mp4 に戻る）")
 args = ap.parse_args()
 root = BASE / args.audio
 img_dir = BASE / args.images
@@ -135,7 +158,7 @@ DEFAULT_CFG = {
     "album": "夢違季節理論 ～ Mystic Season theory",
     "default_composer": "H@RM0NiA",
     "images": {"emblem": "", "cover": ""},
-    "staffroll": {"label": "Staff Roll", "video": "staffroll.mp4", "poster": "", "icon": ""},
+    "staffroll": {"label": "Staff Roll", "video": "staffroll.mp4", "youtube": "", "poster": "", "icon": "", "staff": []},
     "omake": {"label": "おまけ", "url": "omake.html", "sound": "se/trophy.mp3",
               "title": "スタッフロール完走", "text": "「おまけ」が解放されました", "icon": ""},
 }
@@ -198,6 +221,9 @@ autofill(im, "cover", ["cover", "jacket"], "ジャケット(cover)")
 autofill(cfg["staffroll"], "icon", ["staffroll", "staff"], "Staff Roll アイコン")
 autofill(cfg["omake"], "icon", ["omake"], "おまけ アイコン")
 
+if args.youtube is not None:                                 # --youtube URL: スタッフロールを YouTube にする（空なら mp4 に戻す）
+    cfg["staffroll"]["youtube"] = args.youtube.strip()
+    print("スタッフロール: " + (f"YouTube（{args.youtube.strip()}）を使います" if args.youtube.strip() else "mp4 を使います"))
 for spec in args.icon:    # --icon KEY=PATH（明示指定。既存の値を上書き）
     if "=" not in spec:
         sys.exit(f"--icon は KEY=PATH の形で指定してください: {spec}")
@@ -321,20 +347,22 @@ def resolve(spec):
                      "\n  ".join(t["file"] for t in hit))
     sys.exit(f"曲が見つかりません: {spec}\n（audio/ 内の曲: " + ", ".join(t["file"] for _, t in all_tracks()[:5]) + " ...）")
 
-def set_attrs(t, kv):
+def set_attrs(t, kv, quiet=False):
     if ("original" in kv or "original_song" in kv) and "arrange" not in kv \
             and any(kv.get(k) for k in ("original", "original_song")) and not t["arrange"]:
         kv = {**kv, "arrange": True}
-        print(f"  （original/original_song が指定されたので arrange=true にしました: {t['file']}）")
+        if not quiet:
+            print(f"  （original/original_song が指定されたので arrange=true にしました: {t['file']}）")
     for k, v in kv.items():
         t[k] = to_bool(v) if k == "arrange" else str(v)
     if "name" in kv:                                           # name が空なら自動の曲名に戻る
         t["title"] = t["name"] or auto_titles.get(t["file"], t["title"])
-    print("設定:", t["file"], " ", ", ".join(f"{k}={t[k]!r}" for k in kv))
+    if not quiet:
+        print("設定:", t["file"], " ", ", ".join(f"{k}={t[k]!r}" for k in kv))
 
 
 # ---------- CSV で一括設定（--import-csv / --export-csv） ----------
-CSV_COLS = ["file", "name", "composer", "arrange", "original", "original_song"]
+CSV_COLS = ["file", "title_now", "name", "composer", "arrange", "original", "original_song"]   # title_now は参考用（読み込み時は無視）
 
 def import_csv(path):
     p = Path(path)
@@ -355,19 +383,31 @@ def import_csv(path):
                 kv["arrange"] = "true"
             else:
                 kv["arrange"] = a or "false"
-            set_attrs(hit[0], kv); n += 1
-    print(f"CSV から {n} 曲を反映しました: {path}")
+            t = hit[0]
+            before = {k: t[k] for k in ("name", "composer", "arrange", "original", "original_song")}
+            set_attrs(t, kv, quiet=True); n += 1
+            for k, v in before.items():            # 変わった項目だけ表示
+                if t[k] != v:
+                    print(f"  CSV で変更: {t['file']}  {k}: {v!r} → {t[k]!r}")
+    print(f"CSV を反映しました（{n} 曲を確認）: {path}")
 
 def export_csv(path):
     with Path(path).open("w", encoding="utf-8-sig", newline="") as fp:
         w = csv.writer(fp); w.writerow(CSV_COLS)
         for _, t in all_tracks():
-            w.writerow([t["file"], t["name"], t["composer"], "true" if t["arrange"] else "false",
+            w.writerow([t["file"], t["title"], t["name"], t["composer"], "true" if t["arrange"] else "false",
                         t["original"], t["original_song"]])
-    print(f"CSV を書き出しました: {path}（title が自動のままの曲は name 欄が空です）")
+    print(f"CSV を書き出しました: {path}（name 欄が空の曲は、自動の曲名が使われています）")
 
-if args.import_csv:
+csv_auto = None if args.no_csv else BASE / args.csv       # 自動で参照・書き出す CSV
+if args.import_csv:                                          # 明示指定: 更新日時に関係なく反映
     import_csv(args.import_csv)
+elif csv_auto and csv_auto.is_file():
+    if not META.exists() or csv_auto.stat().st_mtime > META.stat().st_mtime:
+        print(f"{csv_auto.name} が meta.json より新しいので、内容を反映します")
+        import_csv(csv_auto)
+    else:
+        print(f"{csv_auto.name} は meta.json より古い（または変更なし）ので、反映せずに現在の内容で書き直します")
 
 for spec_args in args.track:                                   # --track
     spec, *pairs = spec_args
@@ -432,6 +472,12 @@ if args.interactive:
     interactive()
 if args.export_csv:
     export_csv(args.export_csv)
+csv_written = False
+if csv_auto:                                                 # 常に最新の内容で tracks.csv を書き直す（新しい曲の行も追加される）
+    try:
+        export_csv(csv_auto); csv_written = True
+    except PermissionError:
+        print(f"※ {csv_auto.name} を書き込めませんでした（Excel などで開いていませんか？ 閉じてからもう一度実行してください）")
 
 gone = [k for k in track_cfg if k not in seen]
 if gone:
@@ -449,4 +495,7 @@ if gifs:
 out = {"_readme": "このファイルは make_tracks.py が実行のたびに上書き生成します。書き方は make_tracks.py の冒頭を参照。",
        **cfg, "gifs": gifs, "discs": out_discs}
 META.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+if csv_written:                                              # 次回「CSVが新しい」と誤判定しないよう、更新日時を meta.json に揃える
+    st = META.stat()
+    os.utime(csv_auto, (st.st_atime, st.st_mtime))
 print(f"meta.json を出力しました（新しい曲 {new_tracks} 曲）")
