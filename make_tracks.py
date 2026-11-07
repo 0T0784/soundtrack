@@ -20,7 +20,7 @@
     "images": { "emblem": "", "cover": "" },  ← 編集OK: 左上ロゴ / 共通ジャケット（画像パス）
     "staffroll": { "label": "Staff Roll", "video": "staffroll.mp4", "poster": "", "icon": "" },   ← 編集OK
     "omake": { "label": "おまけ", "url": "omake.html", "sound": "se/trophy.mp3",
-               "title": "スタッフロール完走", "text": "「おまけ」が解放されました", "icon": "" }, ← 編集OK
+               "title": "スタッフロール完走", "text": "左下のアイコンから「おまけ」を読めます", "icon": "" }, ← 編集OK: スタッフロールを最後まで見ると、左下に「おまけ」のアイコンが出る（押すと url へ移動）
     "discs": [
       {
         "id": "disc1", "name": "Disc 1",        ← 自動（フォルダ名から）
@@ -83,7 +83,7 @@
       disc1.png       Disc 1 のタブアイコン       （disc1_icon.png でも可。disc2, disc3… も同様）
       disc1_cover.png Disc 1 専用のジャケット
       staffroll.png   「Staff Roll」タブのアイコン （staff.png でも可）
-      omake.png       「おまけ」タブのアイコン
+      omake.png       「おまけ」のアイコン（解放後、画面の左下に出る。無ければ🎁）
       ・拡張子は png / jpg / jpeg / webp / gif / svg。大文字小文字・「_」「-」「空白」は無視される
   ホームページ(home.html)の左側に流す GIF:
       images/gif/ に GIF を置いて実行すると、名前順（1, 2, 10 の順。数字は数として並べる）に meta.json の "gifs" へ入る
@@ -160,7 +160,7 @@ DEFAULT_CFG = {
     "images": {"emblem": "", "cover": ""},
     "staffroll": {"label": "Staff Roll", "video": "staffroll.mp4", "youtube": "", "poster": "", "icon": "", "staff": []},
     "omake": {"label": "おまけ", "url": "omake.html", "sound": "se/trophy.mp3",
-              "title": "スタッフロール完走", "text": "「おまけ」が解放されました", "icon": ""},
+              "title": "スタッフロール完走", "text": "左下のアイコンから「おまけ」を読めます", "icon": ""},
 }
 
 # ---------- 前回の meta.json（または旧形式 audio/meta.json）から引き継ぐ内容を読む ----------

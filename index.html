@@ -70,9 +70,14 @@ main{display:grid;grid-template-columns:1.55fr 1fr;gap:26px}
 .mclose{position:absolute;top:14px;right:16px;width:40px;height:40px;padding:8px;border:0;border-radius:50%;cursor:pointer;
   background:#fffaf2;color:var(--deep);box-shadow:0 2px 8px #0005;transition:.15s}
 .mclose:hover{background:var(--hl);color:var(--deep2)}
-.tab.omake{border-color:#d9a441}
-.tab.fadein{animation:tabin .9s ease both}
-@keyframes tabin{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+.omakeBtn{position:fixed;left:16px;bottom:16px;z-index:30;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;text-decoration:none;font-size:26px;
+  background:radial-gradient(circle at 35% 30%,#ffe8a3,#d9972a);border:2px solid #fff3d6;box-shadow:0 0 0 1px #8f2d1288,0 4px 14px #0006,0 0 14px #f4c25a88;
+  opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity 1.2s ease,transform 1.2s ease}
+.omakeBtn.in{opacity:1;transform:none;pointer-events:auto;animation:ogl 3.2s ease-in-out 1.4s infinite}
+.omakeBtn.in:hover{transform:scale(1.08);transition:transform .2s}
+.omakeBtn img{width:68%;height:68%;object-fit:contain;display:block}
+@keyframes ogl{50%{box-shadow:0 0 0 1px #8f2d1288,0 4px 14px #0006,0 0 26px #f4c25acc}}
+@media(prefers-reduced-motion:reduce){.omakeBtn.in{animation:none}}
 .trophy{position:absolute;top:84px;right:20px;z-index:15;display:flex;align-items:center;gap:14px;min-width:300px;max-width:380px;
   padding:12px 20px 12px 14px;border-radius:14px;background:linear-gradient(135deg,#3b2415,#5a3820);color:#fff3dd;
   border:1px solid #e0b25a;box-shadow:0 6px 22px #0007,inset 0 0 0 1px #ffffff18;
@@ -203,7 +208,7 @@ canvas{grid-column:1/-1;width:100%;height:34px}
     YouTube を使うときは meta.json の "staffroll" の "youtube" にリンクかID（または make_tracks.py --youtube リンク）。
     設定すると mp4 の代わりに YouTube を表示する。※ YouTube は file:// では再生できない／波形は疑似アニメーション
  6) おまけ(トロフィー演出): スタッフロール動画を最後まで再生すると、効果音とともに右からバナーが出て、
-    スタッフロールの右に「おまけ」タブがフェードインする。押すと omake.html へ移動。
+    画面の左下に「おまけ」のアイコンがフェードインする。押すと omake.html へ移動（アイコンは meta.json の omake.icon。無ければ🎁）。
     再読み込みすると非表示に戻る（保存しない）。meta.json の "omake" で設定
     テスト用（どちらも「スタッフロール」タブを選択している間だけ有効。mp4 が無くても確認できる）:
       ・シャッフル=オン かつ 全曲リピート にして、再生ボタンを他のボタンを挟まず3回連続で押す
@@ -274,6 +279,7 @@ canvas{grid-column:1/-1;width:100%;height:34px}
     <button id="mclose" class="mclose" title="閉じる" aria-label="閉じる"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
   </div>
 </div>
+<a id="omakeBtn" class="omakeBtn" href="omake.html" hidden><span id="omakeIc">🎁</span></a>
 <audio id="au" preload="metadata"></audio>
 
 <script>
@@ -343,19 +349,15 @@ const cur=()=>VERSIONS[vi].tracks[ti];
 const dur=()=>staff?(useYT()?(ytOK()?(ytp.getDuration()||0):0):(isFinite(sv.duration)?sv.duration:0)):(cur().d>0?cur().d:(cur().src&&isFinite(au.duration)?au.duration:0));
 
 let staff=false;   // true: スタッフロール(動画)タブを表示中
-let omakeShown=false, omakeFade=false;   // 再読み込みすると false に戻る(保存はしない)
-const OM=()=>Object.assign({label:"おまけ",url:"omake.html",sound:"se/trophy.mp3",title:"スタッフロール完走",text:"「おまけ」が解放されました",icon:""},SITE.omake||{});
+let omakeShown=false;   // 再読み込みすると false に戻る(保存はしない)
+const OM=()=>Object.assign({label:"おまけ",url:"omake.html",sound:"se/trophy.mp3",title:"スタッフロール完走",text:"左下のアイコンから「おまけ」を読めます",icon:""},SITE.omake||{});
 const SR=()=>Object.assign({label:"Staff Roll",video:"staffroll.mp4",youtube:"",poster:"",icon:"",staff:[]},SITE.staffroll||{});
 function renderTabs(){
   $("tabs").innerHTML=VERSIONS.map((v,i)=>`<button class="tab ${!staff&&i===vi?"on":""}" data-i="${i}"><span class="ti"></span>${esc(v.name)}</button>`).join("")
-    +`<button class="tab ${staff?"on":""}" data-staff="1"><span class="ti"></span>${esc(SR().label)}</button>`
-    +(omakeShown?`<button class="tab omake ${omakeFade?"fadein":""}" data-omake="1"><span class="ti"></span>${esc(OM().label)}</button>`:"");
+    +`<button class="tab ${staff?"on":""}" data-staff="1"><span class="ti"></span>${esc(SR().label)}</button>`;
   $("tabs").querySelectorAll(".tab").forEach(b=>{
     const ic=b.querySelector(".ti");
-    if(b.dataset.omake){
-      setImg(ic,OM().icon,"🎁");
-      b.onclick=()=>{location.href=OM().url};      // omake.html へ転送
-    }else if(b.dataset.staff){
+    if(b.dataset.staff){
       setImg(ic,SR().icon,"🎬");
       b.onclick=()=>{staff=true;renderTabs();showView()};
     }else{
@@ -549,6 +551,13 @@ sv.addEventListener("play",()=>{
   ensureGraph(); if(actx&&actx.state==="suspended")actx.resume();   // 動画のコントロールから再生した場合も解析に接続
 });
 let omakeDone=false, trophyTimer=null;
+function showOmakeIcon(){                       // 左下のアイコン。押すと omake.html へ移動
+  const c=OM(), b=$("omakeBtn");
+  omakeShown=true;
+  b.href=c.url; b.title=c.label; b.setAttribute("aria-label",c.label);
+  setImg($("omakeIc"),c.icon,"🎁");
+  b.hidden=false; void b.offsetWidth; b.classList.add("in");
+}
 function unlockOmake(){                      // スタッフロールを最後まで見たとき(1回だけ)
   if(omakeDone)return; omakeDone=true;
   const c=OM();
@@ -556,7 +565,7 @@ function unlockOmake(){                      // スタッフロールを最後�
   $("tTitle").textContent=c.title; $("tText").textContent=c.text;
   const tr=$("trophy"); tr.setAttribute("aria-hidden","false");
   requestAnimationFrame(()=>tr.classList.add("show")); // 右からスライドイン
-  setTimeout(()=>{omakeShown=true;omakeFade=true;renderTabs();omakeFade=false},1500);   // タブをフェードイン
+  setTimeout(showOmakeIcon,1500);                       // 左下におまけのアイコンをフェードイン
   clearTimeout(trophyTimer);
   trophyTimer=setTimeout(()=>{tr.classList.remove("show");tr.setAttribute("aria-hidden","true")},6000);
 }
@@ -577,7 +586,7 @@ window.testOmake=()=>{
   if(!staff){console.warn("testOmake(): 「スタッフロール」タブを選択してから実行してください");return false}
   omakeDone=false;unlockOmake();return true;
 };
-window.resetOmake=()=>{omakeDone=false;omakeShown=false;clearTimeout(trophyTimer);$("trophy").classList.remove("show");renderTabs()};
+window.resetOmake=()=>{omakeDone=false;omakeShown=false;clearTimeout(trophyTimer);$("trophy").classList.remove("show");const b=$("omakeBtn");b.classList.remove("in");b.hidden=true};
 let ppStreak=0;
 document.querySelector(".frame").addEventListener("click",e=>{
   const t=e.target.closest("button,.tr,.prog"); if(!t)return;
