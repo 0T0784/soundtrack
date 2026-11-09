@@ -34,7 +34,8 @@
             "composer": "",                     ← 編集OK: 空 → default_composer
             "arrange": false,                   ← 編集OK: true でアレンジ曲（Arrange バッジ表示）
             "original": "",                     ← 編集OK: 原作名（arrange が true のときだけ表示）
-            "original_song": ""                 ← 編集OK: 原曲名（arrange が true のときだけ表示）
+            "original_song": "",                ← 編集OK: 原曲名（arrange が true のときだけ表示）
+            "story": "stories/disc1/track01.txt"  ← 自動（stories/ に同名の .txt があるときだけ。下の「ストーリー」を参照）
           }
         ]
       }
@@ -75,6 +76,20 @@
       ・original か original_song を入れて arrange を指定しなかった場合は、arrange=true を自動で付ける
       ・値を空にするには  original=  のように右辺を空にする。--track は何度でも書ける
   ※ meta.json はこの設定を反映したうえで上書き生成される
+
+■ ストーリー（曲ごとの手記）
+  曲ごとのストーリーは、曲と同じ名前の .txt を stories/ フォルダに置くだけで登録されます（実行のたびに自動で探します）。
+      stories/
+        disc1/
+          track01.txt    ← audio/disc1/track01.ogg のストーリー（曲のファイル名と同じ名前）
+          02.txt         ← 「02.txt」「2.txt」のように Disc 内の曲番号でも可
+        disc2/
+          track01.txt
+  ・文字コードは UTF-8。空行で段落が分かれ、行の途中の改行はそのまま表示される（全角スペースで字下げもできる）
+  ・.txt が無い曲には何も出ない。ある曲には、曲リストに「Story」バッジと、右側に「ストーリーを読む」ボタンが付く
+  ・meta.json の各曲の "story" に .txt のパスが入る（自動。編集しても実行のたびに作り直される）
+  ・フォルダ名を変えたいとき: python make_tracks.py --stories 別名
+  ・文章を直すだけなら make_tracks.py の再実行は不要（ページを再読み込みすれば反映される）
 
 ■ アイコン・画像の設定
   方法1) images/ フォルダに、決まった名前で画像を置いて実行するだけ（空の項目だけ自動で埋まる）
@@ -130,6 +145,7 @@ IMG_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}
 ap = argparse.ArgumentParser(description="音声・画像フォルダを走査して meta.json を生成（上書き）")
 ap.add_argument("audio", nargs="?", default="audio", help="音声フォルダ（既定: audio）")
 ap.add_argument("--images", default="images", help="画像フォルダ（既定: images）")
+ap.add_argument("--stories", default="stories", help="ストーリー(.txt)のフォルダ（既定: stories）")
 ap.add_argument("--icon", action="append", default=[], metavar="KEY=PATH",
                 help="画像を直接指定（例: staffroll=images/sr.png）。何度でも指定可")
 ap.add_argument("--track", action="append", nargs="+", default=[], metavar="ARG",
@@ -143,6 +159,7 @@ ap.add_argument("--youtube", metavar="URL", help="スタッフロールを YouTu
 args = ap.parse_args()
 root = BASE / args.audio
 img_dir = BASE / args.images
+story_dir = BASE / args.stories
 if not root.is_dir():
     sys.exit(f"フォルダが見つかりません: {root}")
 
@@ -244,6 +261,18 @@ for spec in args.icon:    # --icon KEY=PATH（明示指定。既存の値を上�
         disc_cfg.setdefault(did, {"icon": "", "cover": ""})["cover" if is_cover else "icon"] = path
     print(f"--icon: {key} = {path or '(空)'}")
 
+# ---------- ストーリー(.txt)の検索 ----------
+def story_for(gname, stem, idx):
+    """stories/<discフォルダ名>/ から、曲のファイル名(拡張子なし)または Disc 内の曲番号(01.txt / 1.txt)に合う .txt を探す"""
+    d = story_dir / gname
+    if not d.is_dir():
+        return ""
+    files = {norm(p.stem): p for p in d.iterdir() if p.is_file() and p.suffix.lower() == ".txt"}
+    for k in (stem, f"{idx:02d}", str(idx), f"track{idx:02d}"):
+        if norm(k) in files:
+            return rel(files[norm(k)])
+    return ""
+
 # ---------- 音声フォルダの走査 ----------
 def tag(audio, keys):
     tags = getattr(audio, "tags", None)
@@ -273,9 +302,10 @@ if others:
     print("※ discN 以外のフォルダは別タブとして末尾に追加します:", ", ".join(p.name for p in others))
 groups = discs_dirs + others or [root]
 
-out_discs, seen, new_tracks, auto_titles = [], set(), 0, {}
+out_discs, seen, new_tracks, auto_titles, n_story = [], set(), 0, {}, 0
 for g in groups:
     tracks = []
+    gname = g.name if g != root else "disc1"
     for f in sorted(g.iterdir(), key=lambda p: p.name):
         if f.suffix.lower() not in EXTS:
             continue
@@ -292,12 +322,15 @@ for g in groups:
             new_tracks += 1
         auto = tag(a, ("TIT2", "title", "\xa9nam")) or strip_num(f.stem)
         auto_titles[src] = auto
+        story = story_for(gname, f.stem, len(tracks) + 1)
+        n_story += bool(story)
         tracks.append({"file": src,
                        "title": c["name"] or auto,
                        "name": c["name"],
                        "duration": round(a.info.length, 2),
                        "composer": c["composer"], "arrange": bool(c["arrange"]),
-                       "original": c["original"], "original_song": c["original_song"]})
+                       "original": c["original"], "original_song": c["original_song"],
+                       "story": story})
     if tracks:
         n = disc_no(g)
         name = f"Disc {n}" if n is not None else (strip_num(g.name) if g != root else "Disc 1")
@@ -498,4 +531,5 @@ META.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="
 if csv_written:                                              # 次回「CSVが新しい」と誤判定しないよう、更新日時を meta.json に揃える
     st = META.stat()
     os.utime(csv_auto, (st.st_atime, st.st_mtime))
+print(f"ストーリー: {n_story}曲分を登録（{story_dir.name}/ 内の .txt）" if n_story else f"ストーリー: 見つかりませんでした（{story_dir.name}/disc1/track01.txt のように置くと登録されます）")
 print(f"meta.json を出力しました（新しい曲 {new_tracks} 曲）")

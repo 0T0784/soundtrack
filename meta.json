@@ -75,7 +75,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc1/track01.txt"
         },
         {
           "file": "audio/disc1/track02.ogg",
@@ -85,7 +86,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc1/track02.txt"
         },
         {
           "file": "audio/disc1/track03.ogg",
@@ -95,7 +97,8 @@
           "composer": "0to784",
           "arrange": true,
           "original": "上海アリス幻樂団『東方怪綺談』",
-          "original_song": "the Grimoire of Alice"
+          "original_song": "the Grimoire of Alice",
+          "story": "stories/disc1/track03.txt"
         },
         {
           "file": "audio/disc1/track04.ogg",
@@ -105,7 +108,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc1/track04.txt"
         },
         {
           "file": "audio/disc1/track05.ogg",
@@ -115,7 +119,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc1/track05.txt"
         },
         {
           "file": "audio/disc1/track06.ogg",
@@ -125,7 +130,8 @@
           "composer": "0to784",
           "arrange": true,
           "original": "上海アリス幻樂団『東方風神録』",
-          "original_song": "人恋し神様　～ Romantic Fall"
+          "original_song": "人恋し神様　～ Romantic Fall",
+          "story": "stories/disc1/track06.txt"
         },
         {
           "file": "audio/disc1/track07.ogg",
@@ -135,7 +141,8 @@
           "composer": "0to784",
           "arrange": true,
           "original": "上海アリス幻樂団『東方風神録』",
-          "original_song": "稲田姫様に叱られるから"
+          "original_song": "稲田姫様に叱られるから",
+          "story": "stories/disc1/track07.txt"
         },
         {
           "file": "audio/disc1/track08.ogg",
@@ -145,7 +152,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc1/track08.txt"
         },
         {
           "file": "audio/disc1/track09.ogg",
@@ -155,7 +163,8 @@
           "composer": "0to784",
           "arrange": true,
           "original": "上海アリス幻樂団『東方花映塚』",
-          "original_song": "今昔幻想郷　〜 Flower Land"
+          "original_song": "今昔幻想郷　〜 Flower Land",
+          "story": "stories/disc1/track09.txt"
         },
         {
           "file": "audio/disc1/track10.ogg",
@@ -165,7 +174,8 @@
           "composer": "0to784",
           "arrange": true,
           "original": "上海アリス幻樂団『東方封魔録』",
-          "original_song": "東方封魔録　～ 幽玄乱舞"
+          "original_song": "東方封魔録　～ 幽玄乱舞",
+          "story": "stories/disc1/track10.txt"
         },
         {
           "file": "audio/disc1/track11.ogg",
@@ -175,7 +185,8 @@
           "composer": "0to784",
           "arrange": true,
           "original": "上海アリス幻樂団『東方封魔録』/『東方幻想的音樂』",
-          "original_song": "Complete Darkness"
+          "original_song": "Complete Darkness",
+          "story": "stories/disc1/track11.txt"
         },
         {
           "file": "audio/disc1/track12.ogg",
@@ -185,7 +196,8 @@
           "composer": "0to784",
           "arrange": true,
           "original": "上海アリス幻樂団『東方靈異伝』",
-          "original_song": "天使伝説"
+          "original_song": "天使伝説",
+          "story": "stories/disc1/track12.txt"
         },
         {
           "file": "audio/disc1/track13.ogg",
@@ -195,7 +207,8 @@
           "composer": "0to784",
           "arrange": true,
           "original": "上海アリス幻樂団『東方封魔録』/『東方幻想的音樂』",
-          "original_song": "リーインカーネィション"
+          "original_song": "リーインカーネィション",
+          "story": "stories/disc1/track13.txt"
         },
         {
           "file": "audio/disc1/track14.ogg",
@@ -205,7 +218,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc1/track14.txt"
         },
         {
           "file": "audio/disc1/track15.ogg",
@@ -215,7 +229,8 @@
           "composer": "hika0906ru / koukou0906",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc1/track15.txt"
         },
         {
           "file": "audio/disc1/track16.ogg",
@@ -225,7 +240,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc1/track16.txt"
         },
         {
           "file": "audio/disc1/track17.ogg",
@@ -235,7 +251,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc1/track17.txt"
         },
         {
           "file": "audio/disc1/track18.ogg",
@@ -245,7 +262,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc1/track18.txt"
         }
       ]
     },
@@ -263,7 +281,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": "stories/disc2/track01.txt"
         },
         {
           "file": "audio/disc2/track02.ogg",
@@ -273,7 +292,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": ""
         },
         {
           "file": "audio/disc2/track03.ogg",
@@ -283,7 +303,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": ""
         },
         {
           "file": "audio/disc2/track04.ogg",
@@ -293,7 +314,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": ""
         },
         {
           "file": "audio/disc2/track05.ogg",
@@ -303,7 +325,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": ""
         },
         {
           "file": "audio/disc2/track06.ogg",
@@ -313,7 +336,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": ""
         },
         {
           "file": "audio/disc2/track07.ogg",
@@ -323,7 +347,8 @@
           "composer": "0to784",
           "arrange": false,
           "original": "",
-          "original_song": ""
+          "original_song": "",
+          "story": ""
         }
       ]
     }
