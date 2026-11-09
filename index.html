@@ -145,13 +145,13 @@ canvas{grid-column:1/-1;width:100%;height:34px}
 .storyov{position:fixed;inset:0;z-index:25;border-radius:inherit;background:rgba(48,28,16,.82);display:flex;align-items:center;justify-content:center;padding:5% 4%;
   opacity:0;visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}
 .storyov.show{opacity:1;visibility:visible;transition:opacity .35s ease}
-.paper{--fs:16px;--lh:32px;position:relative;width:min(760px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden;border-radius:4px;
+.paper{--fs:16px;--lh:32px;position:relative;height:100%;aspect-ratio:5/7;max-width:100%;display:flex;flex-direction:column;overflow:hidden;border-radius:4px;
   background:#fbf3e2;color:#3d2a1c;box-shadow:0 8px 30px #0008,inset 0 0 0 1px #fff8;transform:translateY(8px);transition:transform .35s ease}
 .storyov.show .paper{transform:none}
 .ph{padding:18px 28px 12px;border-bottom:2px solid #e0b25a88}
 .ph small{display:block;font-family:Cinzel,serif;font-size:11px;letter-spacing:.14em;color:var(--sub)}
 .ph h2{margin:4px 0 0;font-size:18px;font-weight:600;line-height:1.4;color:var(--deep)}
-.pb{overflow:auto;padding:0 28px;font-family:"Zen Kurenaido","Noto Serif JP",serif;font-size:var(--fs);line-height:var(--lh);scrollbar-width:thin;scrollbar-color:var(--deep) transparent;
+.pb{flex:1 1 auto;min-height:0;overflow:auto;padding:0 28px;font-family:"Zen Kurenaido","Noto Serif JP",serif;font-size:var(--fs);line-height:var(--lh);scrollbar-width:thin;scrollbar-color:var(--deep) transparent;
   background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--lh) - 1px),#e6d3b3 calc(var(--lh) - 1px),#e6d3b3 var(--lh));background-attachment:local}
 .pb p{margin:0 0 var(--lh);white-space:pre-line}
 .pb p:first-child{margin-top:var(--lh)}
