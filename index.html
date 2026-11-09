@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>牛屎院風土記　〜 Unknown Chronicles of Hidden Land</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Noto+Serif+JP:wght@400;600&family=Zen+Kurenaido&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg1:#fbf0e1; --bg2:#f2dabb; --ink:#4a2c1a; --sub:#9c7a5f; --rose:#c8682c;
@@ -135,6 +135,27 @@ canvas{grid-column:1/-1;width:100%;height:34px}
 .vol button.on{color:var(--deep)}
 .vol svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .vol input{accent-color:var(--deep);width:120px}
+/* ストーリー（曲ごとの手記）: 曲に story があるときだけボタンとバッジが出て、押すと紙のように表示する */
+.storybtn{flex:none;display:flex;align-items:center;gap:8px;border:1px solid var(--deep);background:var(--card);color:var(--deep);border-radius:999px;
+  padding:6px 18px;font:inherit;font-size:13px;cursor:pointer;transition:.2s}
+.storybtn:hover{background:var(--hl)}
+.storybtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.staffmode .storybtn{display:none}
+.bd.sb{color:var(--sub);border-color:var(--sub)}
+.storyov{position:fixed;inset:0;z-index:25;border-radius:inherit;background:rgba(48,28,16,.82);display:flex;align-items:center;justify-content:center;padding:5% 4%;
+  opacity:0;visibility:hidden;transition:opacity .35s ease,visibility 0s linear .35s}
+.storyov.show{opacity:1;visibility:visible;transition:opacity .35s ease}
+.paper{--fs:16px;--lh:32px;position:relative;width:min(760px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden;border-radius:4px;
+  background:#fbf3e2;color:#3d2a1c;box-shadow:0 8px 30px #0008,inset 0 0 0 1px #fff8;transform:translateY(8px);transition:transform .35s ease}
+.storyov.show .paper{transform:none}
+.ph{padding:18px 28px 12px;border-bottom:2px solid #e0b25a88}
+.ph small{display:block;font-family:Cinzel,serif;font-size:11px;letter-spacing:.14em;color:var(--sub)}
+.ph h2{margin:4px 0 0;font-size:18px;font-weight:600;line-height:1.4;color:var(--deep)}
+.pb{overflow:auto;padding:0 28px;font-family:"Zen Kurenaido","Noto Serif JP",serif;font-size:var(--fs);line-height:var(--lh);scrollbar-width:thin;scrollbar-color:var(--deep) transparent;
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--lh) - 1px),#e6d3b3 calc(var(--lh) - 1px),#e6d3b3 var(--lh));background-attachment:local}
+.pb p{margin:0 0 var(--lh);white-space:pre-line}
+.pb p:first-child{margin-top:var(--lh)}
+.pb .none{color:var(--sub)}
 /* PC: 16:9 (1280x720) の固定ステージを画面にフィットさせて拡大縮小 */
 @media(min-width:761px){
   body{display:block;padding:0;height:100vh;overflow:hidden}
@@ -158,6 +179,7 @@ canvas{grid-column:1/-1;width:100%;height:34px}
 }
 @media(max-width:760px){
   main,.player{grid-template-columns:1fr}.vbox{height:auto;aspect-ratio:16/9}.btns{gap:6px}.list{height:260px}.os{display:none}
+  .paper{--fs:15px;--lh:30px}.ph,.pb{padding-left:18px;padding-right:18px}.storyov{padding:56px 12px 16px}
 }
 #mAlb,.np .al{white-space:pre-line}
 </style>
@@ -213,6 +235,9 @@ canvas{grid-column:1/-1;width:100%;height:34px}
     テスト用（どちらも「スタッフロール」タブを選択している間だけ有効。mp4 が無くても確認できる）:
       ・シャッフル=オン かつ 全曲リピート にして、再生ボタンを他のボタンを挟まず3回連続で押す
       ・ブラウザのコンソール(F12)で  testOmake()（何度でも再生）／ resetOmake()（元に戻す）
+ 6.5) ストーリー(曲ごとの手記): stories/disc1/track01.txt のように、曲と同じ名前（または 01.txt のような曲番号）の .txt を置いて
+    make_tracks.py を実行すると、その曲に「ストーリーを読む」ボタンと Story バッジが付く。押すと紙のように表示される（空行で段落分け）。
+    .txt が無い曲には何も出ない。書き方の詳細は make_tracks.py の冒頭
  7) 使い方画像: manual.jpg を HTML と同じ場所に置く（右上の？で表示、×・背景クリック・Esc で閉じる）
  8) Release の静的な表示は、下の <div class="meta"> 内で直接書き換える
 =====================================================================
@@ -243,6 +268,7 @@ canvas{grid-column:1/-1;width:100%;height:34px}
         <span class="ar" hidden>Original Song :</span><div class="ar" id="mSong" hidden></div>
         <span>Release :</span><div>2026.11.21</div>
       </div>
+      <button id="storyBtn" class="storybtn" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M14.5 3.5V7.5h4M9 12h6M9 15.5h6"/></svg>ストーリーを読む</button>
       <div class="staffinfo" id="staffinfo"></div>
     </div>
   </main>
@@ -277,6 +303,13 @@ canvas{grid-column:1/-1;width:100%;height:34px}
     <img id="mimg" src="manual.jpg" alt="使い方">
     <p id="mmiss" class="mmiss" hidden>manual.jpg が見つかりません<br>HTMLと同じ場所に置いてください</p>
     <button id="mclose" class="mclose" title="閉じる" aria-label="閉じる"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+  </div>
+  <div id="storyov" class="storyov" role="dialog" aria-modal="true" aria-label="ストーリー" aria-hidden="true">
+    <article class="paper">
+      <div class="ph"><small id="sMeta"></small><h2 id="sTitle"></h2></div>
+      <div class="pb" id="sBody"></div>
+    </article>
+    <button id="sclose" class="mclose" title="閉じる" aria-label="閉じる"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
   </div>
 </div>
 <a id="omakeBtn" class="omakeBtn" href="omake.html" hidden><span id="omakeIc">🎁</span></a>
@@ -318,7 +351,7 @@ function applyMeta(m){
     tracks:(d.tracks||[]).map(t=>({
       t:t.title||t.file, d:t.duration||0, src:t.file,
       composer:t.composer||dc, arrange:!!t.arrange,
-      original:t.original||"", original_song:t.original_song||""}))
+      original:t.original||"", original_song:t.original_song||"", story:t.story||""}))
   })).filter(v=>v.tracks.length);
   if(!VERSIONS.length)throw new Error("meta.json に曲がありません");
 }
@@ -420,7 +453,7 @@ function showView(){
 }
 function renderList(){
   $("list").innerHTML=VERSIONS[vi].tracks.map((x,i)=>
-    `<div class="tr ${i===ti?"on":""}" data-i="${i}"><span class="n">${String(i+1).padStart(2,"0")}.</span><span class="t">${esc(x.t)}${x.arrange?'<span class="bd">Arrange</span>':""}</span><span class="d">${fmt(x.d)}</span></div>`).join("");
+    `<div class="tr ${i===ti?"on":""}" data-i="${i}"><span class="n">${String(i+1).padStart(2,"0")}.</span><span class="t">${esc(x.t)}${x.arrange?'<span class="bd">Arrange</span>':""}${x.story?'<span class="bd sb">Story</span>':""}</span><span class="d">${fmt(x.d)}</span></div>`).join("");
   $("list").querySelectorAll(".tr").forEach(r=>r.onclick=()=>{ti=+r.dataset.i;load(true)});
 }
 function metaUI(){
@@ -430,6 +463,7 @@ function metaUI(){
   const ar=!!t.arrange;
   document.querySelectorAll(".ar").forEach(e=>e.hidden=!ar);
   $("mOrg").textContent=t.original||"-"; $("mSong").textContent=t.original_song||"-";
+  $("storyBtn").hidden=!t.story;                       // 曲にストーリー(手記)があるときだけボタンを出す
 }
 function load(play){
   stopTimer(); pos=0;
@@ -652,6 +686,34 @@ $("help").onclick=openM; $("mclose").onclick=closeM;
 mm.onclick=e=>{if(e.target===mm)closeM()};          // 背景クリックでも閉じる
 addEventListener("keydown",e=>{if(e.key==="Escape"&&mm.classList.contains("show"))closeM()});
 $("mimg").onerror=()=>{$("mimg").hidden=true;$("mmiss").hidden=false};
+/* ストーリー（曲ごとの手記）: meta.json の story（.txt のパス）を開いたときに読み込み、紙のように表示する。
+   空行で段落を分け、行の途中の改行もそのまま出る。再生中の音楽は止めない */
+const so=$("storyov"), SC={};   // SC: 読み込んだ文章のキャッシュ
+let sTok=0;
+async function storyText(url){
+  if(url in SC)return SC[url];
+  const r=await fetch(url,{cache:"no-store"}); if(!r.ok)throw new Error("HTTP "+r.status);
+  return SC[url]=(await r.text()).replace(/^\uFEFF/,"").replace(/\r\n?/g,"\n").trim();
+}
+async function openStory(){
+  const t=cur(); if(!t.story)return;
+  const tok=++sTok, body=$("sBody");
+  $("sMeta").textContent=`${VERSIONS[vi].name}  ・  ${String(ti+1).padStart(2,"0")}`;
+  $("sTitle").textContent=t.t;
+  body.replaceChildren(); body.scrollTop=0;
+  so.classList.add("show"); so.setAttribute("aria-hidden","false"); $("sclose").focus();
+  const put=(txt,cls)=>{ if(tok!==sTok)return;
+    txt.split(/\n{2,}/).forEach(x=>{const p=document.createElement("p");if(cls)p.className=cls;p.textContent=x;body.append(p)}) };
+  try{ put(await storyText(t.story)) }
+  catch(e){ put(t.story+" を読み込めません。\nサーバー経由（serve.py / GitHub Pages）で開いているか、ファイルがあるか確認してください。","none") }
+}
+function closeStory(){
+  sTok++; so.classList.remove("show"); so.setAttribute("aria-hidden","true");
+  const b=$("storyBtn"); if(!b.hidden)b.focus();
+}
+$("storyBtn").onclick=openStory; $("sclose").onclick=closeStory;
+so.onclick=e=>{if(e.target===so)closeStory()};          // 背景クリックでも閉じる
+addEventListener("keydown",e=>{if(e.key==="Escape"&&so.classList.contains("show"))closeStory()});
 let drag=false;
 const seekAt=e=>{const r=$("prog").getBoundingClientRect();seek(Math.min(Math.max((e.clientX-r.left)/r.width,0),1)*dur())};
 $("prog").onpointerdown=e=>{drag=true;$("prog").setPointerCapture(e.pointerId);seekAt(e)};
