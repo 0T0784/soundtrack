@@ -22,7 +22,7 @@
   最初は meta.json だけでも動きます（初回の実行で、その内容から config.json が作られます）。
   {
     "album": "アルバム名",
-    "default_composer": "H@RM0NiA",          ← 編集OK: Composer が空の曲に使われる
+    "default_composer": "0to784",          ← 編集OK: Composer が空の曲に使われる
     "images": { "emblem": "", "cover": "" },  ← 編集OK: 左上ロゴ / 共通ジャケット（画像パス）
     "staffroll": { "label": "Staff Roll", "video": "staffroll.mp4", "poster": "", "icon": "" },   ← 編集OK
     "omake": { "label": "おまけ", "url": "omake.html", "sound": "se/trophy.mp3",
@@ -218,11 +218,11 @@ def rel(p):   # HTML から見た相対パス
 nfc = lambda s: unicodedata.normalize("NFC", s)
 
 DEFAULT_CFG = {
-    "album": "夢違季節理論 ～ Mystic Season theory",
-    "default_composer": "H@RM0NiA",
+    "album": "牛屎院風土記　〜 Unknown Chronicles of Hidden Land.",
+    "default_composer": "0to784",
     "images": {"emblem": "", "cover": ""},
     "staffroll": {"label": "Staff Roll", "video": "staffroll.mp4", "youtube": "", "poster": "", "icon": "", "staff": []},
-    "omake": {"label": "おまけ", "url": "omake.html", "sound": "se/trophy.mp3",
+    "omake": {"label": "おまけ", "url": "https://0t0784.github.io/blog/post.html?p=2026-11-20-private-ST-01-omake", "sound": "audio/trophy.mp3",
               "title": "スタッフロール完走", "text": "左下のアイコンから「おまけ」を読めます", "icon": ""},
 }
 
