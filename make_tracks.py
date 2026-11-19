@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""音声・画像フォルダを走査して meta.json を生成（上書き）します。出力ファイルは meta.json だけです。
+"""音声・画像フォルダを走査して meta.json（HTML が読み込む自動生成ファイル）を作ります。
+手で編集する設定は config.json に保存されます（meta.json は実行のたびに作り直されるので、直接は編集しません）。
 
 ■ フォルダ構成（すべて soundtrack.html と同じ場所に置く）
   soundtrack.html
   make_tracks.py
-  meta.json          ← このスクリプトが毎回上書き生成する（HTML がこれを読み込む）
+  config.json        ← 設定ファイル。手で編集してよい（アルバム名・スタッフ・曲名・アレンジ設定など）。GitHub にはこちらを置く
+  meta.json          ← 自動生成（config.json + 曲の長さ・ストーリー・GIF など）。HTML がこれを読み込む。GitHub には置かない（.gitignore に書く）
   audio/
     disc1/           ← タブ「Disc 1」になる（フォルダ名 = Disc 番号。大文字小文字・スペースは無視）
       01_曲名.wav    ← 並び順はファイル名順。先頭の「01_」「01.」「01 - 」は曲名から消える
@@ -13,7 +15,9 @@
   images/            ← アイコン・ジャケットなど（任意。下記）
   （対応形式: wav / mp3 / ogg / flac / m4a）
 
-■ meta.json の中身
+■ config.json と meta.json の中身
+  config.json は下の「編集OK」の項目だけ、meta.json は「自動」の項目も含めたもの（HTML が読むのは meta.json）です。
+  最初は meta.json だけでも動きます（初回の実行で、その内容から config.json が作られます）。
   {
     "album": "アルバム名",
     "default_composer": "H@RM0NiA",          ← 編集OK: Composer が空の曲に使われる
@@ -42,13 +46,13 @@
     ]
   }
   ・「自動」の項目は実行のたびに最新の内容で上書きされる（編集しても戻る）
-  ・「編集OK」の項目は、手で編集するか、下記のコマンド（-i / --track）で設定する。前回の meta.json の内容が引き継がれる。曲は「file」で、Disc は「id」で対応づける
-  ・ファイルを削除・改名した曲は meta.json から消える（改名した曲の属性は引き継がれないので注意）
+  ・「編集OK」の項目は、config.json を手で編集するか、下記のコマンド（-i / --track）で設定する。config.json の内容が引き継がれる。曲は「file」で、Disc は「id」で対応づける
+  ・ファイルを削除・改名した曲は config.json から消える（改名した曲の属性は引き継がれないので注意）
   ・mp3 等に Composer タグがあれば、新しく追加された曲の composer の初期値に使われる
-  ・以前の audio/meta.json（旧形式）があり、直下に meta.json が無い場合は、その内容を引き継いで作り直す
+  ・以前の audio/meta.json（旧形式）があり、直下に config.json も meta.json も無い場合は、その内容を引き継いで作り直す
 
 ■ 曲ごとの属性（Composer・アレンジなど）をこのスクリプトで設定する
-  meta.json を手で編集するほか、次のコマンドでも設定できます（設定は meta.json に保存され、次回以降も引き継がれる）。
+  config.json を手で編集するほか、次のコマンドでも設定できます（設定は config.json に保存され、次回以降も引き継がれる）。
   方法A) 対話モード: 曲の一覧から番号を選び、質問に答えていく
       python make_tracks.py -i
         → 曲の番号（例: 3 / 1,3 / 2-4 / all）を入力 → Composer、アレンジ曲か(y/n)、原作名、原曲名 を順に入力
@@ -58,9 +62,10 @@
       1. python make_tracks.py を実行 → tracks.csv が自動で作られる（全曲の一覧。Excel / メモ帳で開ける）
       2. tracks.csv の name / composer / arrange / original / original_song 列を埋めて保存（file 列は変えない。
          title_now 列は「今の曲名」を見るための参考用で、編集しても反映されない）
-      3. もう一度実行 → CSV の内容が meta.json に反映され、tracks.csv も最新の内容で書き直される
-      ・CSV と meta.json の「更新日時が新しい方」を優先する: CSV を保存し直したあとなら CSV の内容を反映し、
-        meta.json を手で直したあとなら CSV は反映せず、meta.json の内容で CSV を書き直す
+      3. もう一度実行 → CSV の内容が config.json に反映され、tracks.csv も最新の内容で書き直される
+      ・CSV と config.json の「更新日時が新しい方」を優先する: CSV を保存し直したあとなら CSV の内容を反映し、
+        config.json を手で直したあとなら CSV は反映せず、config.json の内容で CSV を書き直す
+      ・original（原作）欄は、1行目にサークル名、2行目に作品名のように改行して書ける（Excel ではセル内改行 Alt+Enter。コマンドでは \n と書く）
       ・CSV の内容がそのまま反映される（空欄 = 空にする）。original / original_song が入っている行は arrange 欄が false でも true になる
       ・CSV に載っていない曲は変更されない（新しい曲は実行後に CSV へ追加される）。文字コードは UTF-8（BOM 付き）
       ・Excel で tracks.csv を開いたままだと書き直せないので、閉じてから実行する（その旨の警告が出る）
@@ -75,7 +80,22 @@
       ・キー: name(曲名) / composer / arrange(true・false) / original(原作名) / original_song(原曲名)。1つの --track に複数並べてよい
       ・original か original_song を入れて arrange を指定しなかった場合は、arrange=true を自動で付ける
       ・値を空にするには  original=  のように右辺を空にする。--track は何度でも書ける
-  ※ meta.json はこの設定を反映したうえで上書き生成される
+  ※ 設定は config.json に保存され、meta.json もそれを反映して作り直される
+
+■ 音声ファイルのタグ（ORIGINAL など）からアレンジ曲を自動判定
+  mp3 / ogg / flac / m4a / wav のタグに ORIGINAL 系の項目が入っていれば、読み込んで original / original_song / arrange に反映します。
+      ORIGINAL           → 原曲名（original_song）          ※ ORIGINAL TITLE / ORIGINAL SONG でも可
+      ORIGINAL COMPOSER  → 原作者・サークル名（original の1行目）    ※ ORIGINAL ARTIST / TOPE（mp3の「原アーティスト」）でも可
+      ORIGINAL ALBUM     → 原作名（original の2行目）               ※ ORIGINAL WORK / ORIGINAL GAME / TOAL でも可
+      （ORIGINAL_COMPOSER のように _ でつないだ名前や、大文字小文字の違いは同じものとして扱う）
+      例: ORIGINAL COMPOSER=上海アリス幻樂団, ORIGINAL ALBUM=東方怪綺談
+          → プレイヤーの Original 欄に「上海アリス幻樂団」の下の行に「東方怪綺談」と表示される
+  ・どれか1つでも入っていれば arrange=true（アレンジ曲）にします。1つも無い曲は今のまま（勝手に false にはしません）
+  ・新しく追加した曲は、実行するだけで自動で読み込みます
+  ・すでに登録済みの曲にも読み込みたいときは --tags を付けて実行:
+      python make_tracks.py --tags               # 空欄の項目だけタグで埋める（手で入れた値は残す）
+      python make_tracks.py --tags overwrite     # タグの内容で上書きする
+  ・タグの名前の対応を変えたいときは、このファイルの TAG_ORIG_SONG / TAG_ORIG_COMPOSER / TAG_ORIG_WORK を編集する
 
 ■ ストーリー（曲ごとの手記）
   曲ごとのストーリーは、曲と同じ名前の .txt を stories/ フォルダに置くだけで登録されます（実行のたびに自動で探します）。
@@ -104,7 +124,7 @@
       images/gif/ に GIF を置いて実行すると、名前順（1, 2, 10 の順。数字は数として並べる）に meta.json の "gifs" へ入る
       （毎回自動で作り直される。GIF が1枚もなければ、ホームの左側は通常のジャケット画像のまま）
   スタッフロールのタブ: 下の再生バーが隠れ、右側にスタッフ紹介が出る（動画自身のコントロールで操作する）。
-      meta.json の "staffroll" の "staff" に書く（実行しても消えず、そのまま引き継がれる）:
+      config.json の "staffroll" の "staff" に書く（実行しても消えず、そのまま引き継がれる）:
         "staff": [
           { "name": "オト", "role": "作曲・制作", "text": "ひとこと（\n で改行できる）", "icon": "images/staff1.png" }
         ]
@@ -119,6 +139,13 @@
       python make_tracks.py --icon staffroll=images/sr.png --icon omake=images/gift.png
       指定できるキー: emblem / cover / staffroll / omake / disc1 / disc1_cover / disc2 / disc2_cover …
       空に戻したいときは  --icon staffroll=   （右辺を空にする）
+
+■ GitHub Pages（deploy.yml）で使うとき
+  ・config.json はリポジトリに入れる。meta.json は自動生成なので入れない（.gitignore に meta.json と一行書く）
+  ・deploy.yml が公開のたびに  python make_tracks.py --no-csv --no-config --tags  を実行して meta.json を作る
+      --no-config : config.json は書き換えない（CI 用。パソコンでは付けない）
+  ・初めて分けるとき: ① パソコンで python make_tracks.py を1回実行 → config.json ができる
+      ② git rm --cached meta.json で meta.json をリポジトリから外し、.gitignore に meta.json を書く
 
 ■ 使い方
   pip install mutagen
@@ -138,7 +165,8 @@ from pathlib import Path
 from mutagen import File
 
 BASE = Path(__file__).resolve().parent        # soundtrack.html と同じフォルダ
-META = BASE / "meta.json"
+META = BASE / "meta.json"                      # 自動生成（HTML が読む）
+CONFIG = BASE / "config.json"                  # 設定（手で編集してよい）
 EXTS = {".wav", ".mp3", ".ogg", ".flac", ".m4a"}
 IMG_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}
 
@@ -146,6 +174,8 @@ ap = argparse.ArgumentParser(description="音声・画像フォルダを走査�
 ap.add_argument("audio", nargs="?", default="audio", help="音声フォルダ（既定: audio）")
 ap.add_argument("--images", default="images", help="画像フォルダ（既定: images）")
 ap.add_argument("--stories", default="stories", help="ストーリー(.txt)のフォルダ（既定: stories）")
+ap.add_argument("--tags", nargs="?", const="fill", choices=["fill", "overwrite"],
+                help="登録済みの曲にも、タグの ORIGINAL 系を読み込む（fill=空欄だけ埋める[既定] / overwrite=上書き）")
 ap.add_argument("--icon", action="append", default=[], metavar="KEY=PATH",
                 help="画像を直接指定（例: staffroll=images/sr.png）。何度でも指定可")
 ap.add_argument("--track", action="append", nargs="+", default=[], metavar="ARG",
@@ -155,6 +185,7 @@ ap.add_argument("--import-csv", metavar="PATH", help="CSV の内容を曲の属�
 ap.add_argument("-i", "--interactive", action="store_true", help="対話モードで曲の属性を設定")
 ap.add_argument("--csv", default="tracks.csv", metavar="PATH", help="自動で参照・書き出しする CSV（既定: tracks.csv）")
 ap.add_argument("--no-csv", action="store_true", help="CSV の自動参照・書き出しをしない")
+ap.add_argument("--no-config", action="store_true", help="config.json を書き換えない（GitHub Actions など自動実行用）")
 ap.add_argument("--youtube", metavar="URL", help="スタッフロールを YouTube にする（リンクか動画ID。空にすると mp4 に戻る）")
 args = ap.parse_args()
 root = BASE / args.audio
@@ -180,17 +211,19 @@ DEFAULT_CFG = {
               "title": "スタッフロール完走", "text": "左下のアイコンから「おまけ」を読めます", "icon": ""},
 }
 
-# ---------- 前回の meta.json（または旧形式 audio/meta.json）から引き継ぐ内容を読む ----------
+# ---------- 前回の設定（config.json → meta.json → 旧形式 audio/meta.json の順）から引き継ぐ内容を読む ----------
 cfg = copy.deepcopy(DEFAULT_CFG)
 disc_cfg, track_cfg = {}, {}
-old_path = META if META.exists() else (root / "meta.json" if (root / "meta.json").exists() else None)
+old_path = next((p for p in (CONFIG, META, root / "meta.json") if p.exists()), None)
 if old_path:
     try:
         data = json.loads(old_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as e:
         sys.exit(f"{old_path} を読み込めません（JSONの書式エラー）: {e}")
-    if old_path != META:
+    if old_path not in (CONFIG, META):
         print(f"旧形式の {rel(old_path)} の内容を引き継ぎます（不要になったら削除してかまいません）")
+    elif old_path == META:
+        print("meta.json の内容を引き継いで config.json を作ります（以後の設定は config.json に保存されます）")
     for k in ("album", "default_composer"):
         if k in data: cfg[k] = data[k]
     for k in ("staffroll", "omake"):
@@ -288,6 +321,40 @@ def tag(audio, keys):
             pass
     return None
 
+# ORIGINAL 系タグの名前（大文字小文字・空白・_・- は無視して比較）。名前の対応を変えたいときはここを編集
+TAG_ORIG_SONG     = ("ORIGINAL", "ORIGINAL TITLE", "ORIGINAL SONG", "ORIGINALTITLE", "ORIGINALSONG")        # 原曲名
+TAG_ORIG_COMPOSER = ("ORIGINAL COMPOSER", "ORIGINAL ARTIST", "ORIGINALCOMPOSER", "ORIGINALARTIST", "TOPE")  # 原作者・サークル
+TAG_ORIG_WORK     = ("ORIGINAL ALBUM", "ORIGINAL WORK", "ORIGINAL GAME", "ORIGINALALBUM", "TOAL")          # 原作名
+
+def tag_pairs(audio):
+    """タグを (名前, 値) の一覧にする。mp3(ID3: TXXX・TOPE・TOAL など) / ogg・flac(Vorbis) / m4a(freeform) に対応"""
+    out, tags = [], getattr(audio, "tags", None)
+    if not tags:
+        return out
+    try:
+        items = list(tags.items())
+    except Exception:
+        return out
+    for k, v in items:
+        k = str(k)
+        name = k[5:] if k.startswith("TXXX:") else (k.rsplit(":", 1)[-1] if k.startswith("----:") else k)
+        vals = v.text if hasattr(v, "text") else (v if isinstance(v, (list, tuple)) else [v])
+        vals = [(x.decode("utf-8", "replace") if isinstance(x, bytes) else str(x)).strip() for x in vals]
+        val = " / ".join(x for x in vals if x)
+        if val:
+            out.append((norm(name), val))
+    return out
+
+def orig_from_tags(audio):
+    """ORIGINAL 系のタグから {"original": 原作者＋改行＋原作名, "original_song": 原曲名} を作る。1つも無ければ None"""
+    pairs = tag_pairs(audio)
+    pick = lambda names: next((v for n, v in pairs if n in {norm(x) for x in names}), "")
+    song, comp, work = pick(TAG_ORIG_SONG), pick(TAG_ORIG_COMPOSER), pick(TAG_ORIG_WORK)
+    if not (song or comp or work):
+        return None
+    original = f"{comp}\n{work}" if comp and work else (comp or work)      # 1行目: 原作者・サークル / 2行目: 原作名
+    return {"original": original, "original_song": song}
+
 def strip_num(s):
     return re.sub(r"^\d+\s*[-_.．\s]+\s*", "", s) or s
 
@@ -302,7 +369,7 @@ if others:
     print("※ discN 以外のフォルダは別タブとして末尾に追加します:", ", ".join(p.name for p in others))
 groups = discs_dirs + others or [root]
 
-out_discs, seen, new_tracks, auto_titles, n_story = [], set(), 0, {}, 0
+out_discs, seen, new_tracks, auto_titles, n_story, n_tag = [], set(), 0, {}, 0, 0
 for g in groups:
     tracks = []
     gname = g.name if g != root else "disc1"
@@ -314,12 +381,25 @@ for g in groups:
             print("読み込めません:", f); continue
         src = rel(f)
         key = nfc(src); seen.add(key)
-        if key in track_cfg:
+        is_new = key not in track_cfg
+        if not is_new:
             c = track_cfg[key]
         else:                                  # 新しい曲 → 雛形（タグにComposerがあれば初期値に）
             c = {"name": "", "composer": tag(a, ("TCOM", "composer", "\xa9wrt")) or "",
                  "arrange": False, "original": "", "original_song": ""}
             new_tracks += 1
+        if is_new or args.tags:                # ORIGINAL 系のタグ → 原作・原曲・アレンジ判定
+            ot = orig_from_tags(a)
+            if ot:
+                changed = False
+                for k in ("original", "original_song"):
+                    if ot[k] and c[k] != ot[k] and (args.tags == "overwrite" or not c[k]):
+                        c[k] = ot[k]; changed = True
+                if not c["arrange"]:
+                    c["arrange"] = True; changed = True
+                if changed:
+                    n_tag += 1
+                    print(f"  タグから反映: {f.name} → 原作: {(c['original'] or '-').replace(chr(10), ' ／ ')} / 原曲: {c['original_song'] or '-'}")
         auto = tag(a, ("TIT2", "title", "\xa9nam")) or strip_num(f.stem)
         auto_titles[src] = auto
         story = story_for(gname, f.stem, len(tracks) + 1)
@@ -387,7 +467,7 @@ def set_attrs(t, kv, quiet=False):
         if not quiet:
             print(f"  （original/original_song が指定されたので arrange=true にしました: {t['file']}）")
     for k, v in kv.items():
-        t[k] = to_bool(v) if k == "arrange" else str(v)
+        t[k] = to_bool(v) if k == "arrange" else str(v).replace("\\n", "\n")      # 文字の「\n」は改行にする（original を2行にしたいとき）
     if "name" in kv:                                           # name が空なら自動の曲名に戻る
         t["title"] = t["name"] or auto_titles.get(t["file"], t["title"])
     if not quiet:
@@ -436,11 +516,12 @@ csv_auto = None if args.no_csv else BASE / args.csv       # 自動で参照・�
 if args.import_csv:                                          # 明示指定: 更新日時に関係なく反映
     import_csv(args.import_csv)
 elif csv_auto and csv_auto.is_file():
-    if not META.exists() or csv_auto.stat().st_mtime > META.stat().st_mtime:
-        print(f"{csv_auto.name} が meta.json より新しいので、内容を反映します")
+    ref = CONFIG if CONFIG.exists() else META                 # 比べる相手は設定ファイル（config.json。まだ無ければ meta.json）
+    if not ref.exists() or csv_auto.stat().st_mtime > ref.stat().st_mtime:
+        print(f"{csv_auto.name} が {ref.name} より新しいので、内容を反映します")
         import_csv(csv_auto)
     else:
-        print(f"{csv_auto.name} は meta.json より古い（または変更なし）ので、反映せずに現在の内容で書き直します")
+        print(f"{csv_auto.name} は {ref.name} より古い（または変更なし）ので、反映せずに現在の内容で書き直します")
 
 for spec_args in args.track:                                   # --track
     spec, *pairs = spec_args
@@ -514,7 +595,7 @@ if csv_auto:                                                 # 常に最新の�
 
 gone = [k for k in track_cfg if k not in seen]
 if gone:
-    print(f"※ 音声ファイルが見つからないため meta.json から削除した曲: {len(gone)} 件")
+    print(f"※ 音声ファイルが見つからないため設定（config.json）から削除した曲: {len(gone)} 件")
     for k in gone: print("   ", k)
 
 # images/gif/ の GIF を名前順（数字は数として）に並べる ※ホームページ左側のスライドショー用
@@ -525,11 +606,20 @@ gifs = [rel(f) for f in sorted(gif_dir.iterdir(), key=natural)
 if gifs:
     print(f"GIFを登録: {len(gifs)}枚（{gif_dir.name}/ 内、名前順）")
 
-out = {"_readme": "このファイルは make_tracks.py が実行のたびに上書き生成します。書き方は make_tracks.py の冒頭を参照。",
+out = {"_readme": "このファイルは make_tracks.py が実行のたびに自動で作り直します（直接編集しないでください）。設定は config.json に書きます。",
        **cfg, "gifs": gifs, "discs": out_discs}
 META.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-if csv_written:                                              # 次回「CSVが新しい」と誤判定しないよう、更新日時を meta.json に揃える
-    st = META.stat()
+if not args.no_config:                                       # 設定（編集OKの項目だけ）を config.json に保存
+    SET_KEYS = ("file", "name", "composer", "arrange", "original", "original_song")
+    conf = {"_readme": "設定ファイル（手で編集してよい）。make_tracks.py を実行すると meta.json が作られます。書き方は make_tracks.py の冒頭を参照。",
+            **cfg,
+            "discs": [{"id": d["id"], "icon": d["icon"], "cover": d["cover"],
+                       "tracks": [{k: t[k] for k in SET_KEYS} for t in d["tracks"]]} for d in out_discs]}
+    CONFIG.write_text(json.dumps(conf, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+if csv_written:                                              # 次回「CSVが新しい」と誤判定しないよう、更新日時を設定ファイルに揃える
+    st = (CONFIG if CONFIG.exists() else META).stat()
     os.utime(csv_auto, (st.st_atime, st.st_mtime))
 print(f"ストーリー: {n_story}曲分を登録（{story_dir.name}/ 内の .txt）" if n_story else f"ストーリー: 見つかりませんでした（{story_dir.name}/disc1/track01.txt のように置くと登録されます）")
-print(f"meta.json を出力しました（新しい曲 {new_tracks} 曲）")
+if n_tag:
+    print(f"タグ(ORIGINAL系)から反映: {n_tag}曲")
+print(f"meta.json を出力しました" + ("" if args.no_config else "（設定は config.json に保存）") + f"（新しい曲 {new_tracks} 曲）")
