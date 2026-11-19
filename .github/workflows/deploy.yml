@@ -1,0 +1,119 @@
+# GitHub Pages に公開するワークフロー
+#
+# 置き場所: リポジトリの  .github/workflows/deploy.yml
+# 最初に1回だけ: リポジトリの Settings → Pages → Build and deployment → Source を「GitHub Actions」にする
+#
+# 公開のたびに make_tracks.py を実行して、曲の長さ・ストーリー・GIF の一覧などを含む meta.json を作ります。
+# HTML は、ここで作られた meta.json を読み込みます（meta.json は GitHub に置かなくてOK）。
+#
+# リポジトリに置くもの: config.json（アルバム名・スタッフ・曲名・アレンジ設定などの「設定」）と、曲・画像・ストーリー
+# リポジトリに置かないもの: meta.json（自動生成）→ .gitignore に「meta.json」と1行書いておく
+#   ※ config.json は、パソコンで python make_tracks.py を実行すると作られます（初回は meta.json の内容から作られます）
+#
+# main ブランチに push するたびに、サイトのファイルを公開します（Actions タブから手動実行もできます）。
+# ブランチ名が main ではないとき（master など）は、下の branches を書き換えてください。
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時に複数のデプロイが走らないようにする（実行中のデプロイは途中で止めず、順番に処理）
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # make_tracks.py を実行して meta.json を作る（リポジトリ直下に make_tracks.py・config.json・audio/・images/ がある前提）
+      #   --no-csv    : tracks.csv は使わない（CSV の内容は、パソコンで反映した config.json に入っている）
+      #   --no-config : config.json は書き換えない（CI では設定を保存しない）
+      #   --tags      : 曲のタグの ORIGINAL 系で、空欄の原作・原曲を埋めてアレンジ曲を自動判定（不要なら消す）
+      - name: make_tracks.py で meta.json を作る
+        run: |
+          test -f config.json || test -f meta.json || echo "::warning::config.json がリポジトリにありません。アルバム名・スタッフ・曲名などの設定が初期値になります（パソコンで make_tracks.py を実行して config.json をコミットしてください）"
+          python3 -m venv .venv
+          .venv/bin/pip install --quiet mutagen
+          .venv/bin/python make_tracks.py --no-csv --no-config --tags
+
+      # 公開するファイルだけを _site にコピーする（制作用のファイルは公開しない）
+      # 公開したくないファイルが他にあれば、--exclude の行を足してください（例: --exclude='*.psd'）
+      - name: 公開用のファイルを _site にまとめる
+        run: |
+          mkdir _site
+          tar -cf - \
+            --exclude='./_site' \
+            --exclude='.git' --exclude='.github' --exclude='.gitignore' --exclude='.gitattributes' \
+            --exclude='*.py' --exclude='*.bat' --exclude='*.sh' \
+            --exclude='*.csv' --exclude='config.json' \
+            --exclude='README*' \
+            --exclude='__pycache__' --exclude='node_modules' --exclude='.venv' \
+            . | tar -xf - -C _site
+          echo "公開するファイル:"
+          find _site -type f | sort | head -n 200
+
+      # meta.json に書かれた曲・画像・ストーリーのファイルが実際にあるか確認する
+      # 見つからないものは黄色の警告で知らせます（デプロイは止めません）。止めたいときは最後の行を exit 1 にしてください。
+      # ※ GitHub Pages は大文字小文字を区別します（Windows では動くのに公開すると表示されない、の原因になりやすい）
+      - name: meta.json が指すファイルの確認
+        run: |
+          python3 - <<'PY'
+          import json, re, sys
+          from pathlib import Path
+
+          site = Path("_site")
+          if not (site / "index.html").exists():
+              print("::warning::index.html がありません（トップページが表示されません）")
+          meta = site / "meta.json"
+          if not meta.exists():
+              print("::warning::meta.json が作られていません（make_tracks.py の実行に失敗していないか確認してください）")
+              sys.exit(0)
+          try:
+              data = json.loads(meta.read_text(encoding="utf-8"))
+          except Exception as e:
+              print(f"::error::meta.json を読み込めません: {e}")
+              sys.exit(1)
+
+          EXT = re.compile(r"\.(png|jpe?g|gif|webp|svg|ogg|mp3|wav|flac|m4a|mp4|webm|txt|html)$", re.I)
+          missing = set()
+          def walk(v):
+              if isinstance(v, dict):
+                  for x in v.values(): walk(x)
+              elif isinstance(v, list):
+                  for x in v: walk(x)
+              elif isinstance(v, str) and EXT.search(v) and "://" not in v and "\n" not in v:
+                  if not (site / v).exists():
+                      missing.add(v)
+          walk(data)
+
+          for m in sorted(missing):
+              print(f"::warning::meta.json に書かれたファイルが見つかりません: {m}")
+          print("meta.json の確認: 問題なし" if not missing else f"meta.json の確認: {len(missing)}件 見つかりません")
+          sys.exit(0)
+          PY
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
