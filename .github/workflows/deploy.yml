@@ -6,8 +6,8 @@
 # 公開のたびに make_tracks.py を実行して、曲の長さ・ストーリー・GIF の一覧などを含む meta.json を作ります。
 # HTML は、ここで作られた meta.json を読み込みます（meta.json は GitHub に置かなくてOK）。
 #
-# リポジトリに置くもの: config.json（アルバム名・スタッフ・曲名・アレンジ設定などの「設定」）と、曲・画像・ストーリー
-# リポジトリに置かないもの: meta.json（自動生成）→ .gitignore に「meta.json」と1行書いておく
+# リポジトリに置くもの: config.json（アルバム名・曲名・アレンジ設定などの「設定」）、make_staff.py（スタッフ一覧）、曲・画像・ストーリー
+# リポジトリに置かないもの: meta.json と staff.json（どちらも自動生成）→ .gitignore に「meta.json」「staff.json」と書いておく
 #   ※ config.json は、パソコンで python make_tracks.py を実行すると作られます（初回は meta.json の内容から作られます）
 #
 # main ブランチに push するたびに、サイトのファイルを公開します（Actions タブから手動実行もできます）。
@@ -39,6 +39,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      # スタッフ一覧: make_staff.py があれば実行して staff.json を作る（make_tracks.py が meta.json に取り込む）
+      - name: make_staff.py で staff.json を作る
+        run: |
+          if [ -f make_staff.py ]; then
+            python3 make_staff.py
+          else
+            echo "make_staff.py が無いので、スタッフ一覧は config.json の内容を使います"
+          fi
+
       # make_tracks.py を実行して meta.json を作る（リポジトリ直下に make_tracks.py・config.json・audio/・images/ がある前提）
       #   --no-csv    : tracks.csv は使わない（CSV の内容は、パソコンで反映した config.json に入っている）
       #   --no-config : config.json は書き換えない（CI では設定を保存しない）
@@ -59,7 +68,7 @@ jobs:
             --exclude='./_site' \
             --exclude='.git' --exclude='.github' --exclude='.gitignore' --exclude='.gitattributes' \
             --exclude='*.py' --exclude='*.bat' --exclude='*.sh' \
-            --exclude='*.csv' --exclude='config.json' \
+            --exclude='*.csv' --exclude='config.json' --exclude='staff.json' \
             --exclude='README*' \
             --exclude='__pycache__' --exclude='node_modules' --exclude='.venv' \
             . | tar -xf - -C _site
