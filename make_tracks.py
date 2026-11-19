@@ -7,6 +7,8 @@
   make_tracks.py
   config.json        ← 設定ファイル。手で編集してよい（アルバム名・スタッフ・曲名・アレンジ設定など）。GitHub にはこちらを置く
   meta.json          ← 自動生成（config.json + 曲の長さ・ストーリー・GIF など）。HTML がこれを読み込む。GitHub には置かない（.gitignore に書く）
+  make_staff.py      ← スタッフロールのスタッフ一覧を書いて staff.json に出力するプログラム（任意。下記「スタッフ一覧」）
+  staff.json         ← make_staff.py が自動生成（あれば meta.json のスタッフ欄に使われる）。GitHub には置かない（.gitignore に書く）
   audio/
     disc1/           ← タブ「Disc 1」になる（フォルダ名 = Disc 番号。大文字小文字・スペースは無視）
       01_曲名.wav    ← 並び順はファイル名順。先頭の「01_」「01.」「01 - 」は曲名から消える
@@ -20,10 +22,10 @@
   最初は meta.json だけでも動きます（初回の実行で、その内容から config.json が作られます）。
   {
     "album": "アルバム名",
-    "default_composer": "0to784",          ← 編集OK: Composer が空の曲に使われる
+    "default_composer": "H@RM0NiA",          ← 編集OK: Composer が空の曲に使われる
     "images": { "emblem": "", "cover": "" },  ← 編集OK: 左上ロゴ / 共通ジャケット（画像パス）
     "staffroll": { "label": "Staff Roll", "video": "staffroll.mp4", "poster": "", "icon": "" },   ← 編集OK
-    "omake": { "label": "おまけ", "url": "https://0t0784.github.io/blog/post.html?p=2026-11-20-private-ST-01-omake", "sound": "audio/trophy.mp3",
+    "omake": { "label": "おまけ", "url": "omake.html", "sound": "se/trophy.mp3",
                "title": "スタッフロール完走", "text": "左下のアイコンから「おまけ」を読めます", "icon": "" }, ← 編集OK: スタッフロールを最後まで見ると、左下に「おまけ」のアイコンが出る（押すと url へ移動）
     "discs": [
       {
@@ -124,7 +126,7 @@
       images/gif/ に GIF を置いて実行すると、名前順（1, 2, 10 の順。数字は数として並べる）に meta.json の "gifs" へ入る
       （毎回自動で作り直される。GIF が1枚もなければ、ホームの左側は通常のジャケット画像のまま）
   スタッフロールのタブ: 下の再生バーが隠れ、右側にスタッフ紹介が出る（動画自身のコントロールで操作する）。
-      config.json の "staffroll" の "staff" に書く（実行しても消えず、そのまま引き継がれる）:
+      スタッフ一覧は make_staff.py で書くのがおすすめ（下の「スタッフ一覧」）。config.json の "staffroll" の "staff" に直接書くこともできる（staff.json が無いときに使われる）:
         "staff": [
           { "name": "オト", "role": "作曲・制作", "text": "ひとこと（\n で改行できる）", "icon": "images/staff1.png" }
         ]
@@ -140,9 +142,20 @@
       指定できるキー: emblem / cover / staffroll / omake / disc1 / disc1_cover / disc2 / disc2_cover …
       空に戻したいときは  --icon staffroll=   （右辺を空にする）
 
+■ スタッフ一覧（make_staff.py → staff.json）
+  スタッフロールのスタッフは、別のプログラム make_staff.py に書いて JSON に出力できます（改行つきのひとことも、そのまま改行して書ける）。
+      1. make_staff.py の STAFF にスタッフを書く（name / role / text / icon。書き方は make_staff.py の冒頭を参照）
+      2. python make_staff.py → staff.json ができる
+      3. python make_tracks.py → staff.json の内容が meta.json の "staffroll" の "staff" に入る（HTML はこれまでどおり meta.json を読むだけ）
+  ・staff.json があるときは、config.json に書いたスタッフより staff.json が優先される（config.json には書き込まれない）
+  ・staff.json が無ければ、これまでどおり config.json の "staff" が使われる
+  ・make_staff.py を直したら make_tracks.py の前に毎回 make_staff.py を実行する（GitHub の deploy.yml は自動で両方実行する）
+  ・オプション: --staff 別名.json（読み込む JSON を変える）
+
 ■ GitHub Pages（deploy.yml）で使うとき
   ・config.json はリポジトリに入れる。meta.json は自動生成なので入れない（.gitignore に meta.json と一行書く）
-  ・deploy.yml が公開のたびに  python make_tracks.py --no-csv --no-config --tags  を実行して meta.json を作る
+  ・staff.json も自動生成なので入れない（.gitignore に staff.json と書く。make_staff.py はリポジトリに入れる）
+  ・deploy.yml が公開のたびに  python make_staff.py → python make_tracks.py --no-csv --no-config --tags  を実行して meta.json を作る
       --no-config : config.json は書き換えない（CI 用。パソコンでは付けない）
   ・初めて分けるとき: ① パソコンで python make_tracks.py を1回実行 → config.json ができる
       ② git rm --cached meta.json で meta.json をリポジトリから外し、.gitignore に meta.json を書く
@@ -185,6 +198,7 @@ ap.add_argument("--import-csv", metavar="PATH", help="CSV の内容を曲の属�
 ap.add_argument("-i", "--interactive", action="store_true", help="対話モードで曲の属性を設定")
 ap.add_argument("--csv", default="tracks.csv", metavar="PATH", help="自動で参照・書き出しする CSV（既定: tracks.csv）")
 ap.add_argument("--no-csv", action="store_true", help="CSV の自動参照・書き出しをしない")
+ap.add_argument("--staff", default="staff.json", metavar="PATH", help="スタッフ一覧の JSON（make_staff.py の出力。既定: staff.json。あれば config.json のスタッフより優先）")
 ap.add_argument("--no-config", action="store_true", help="config.json を書き換えない（GitHub Actions など自動実行用）")
 ap.add_argument("--youtube", metavar="URL", help="スタッフロールを YouTube にする（リンクか動画ID。空にすると mp4 に戻る）")
 args = ap.parse_args()
@@ -606,8 +620,24 @@ gifs = [rel(f) for f in sorted(gif_dir.iterdir(), key=natural)
 if gifs:
     print(f"GIFを登録: {len(gifs)}枚（{gif_dir.name}/ 内、名前順）")
 
+# スタッフ一覧: staff.json（make_staff.py の出力）があれば、meta.json のスタッフロールにそれを使う（config.json には書き込まない）
+meta_cfg = copy.deepcopy(cfg)
+staff_file = BASE / args.staff
+if staff_file.is_file():
+    try:
+        sd = json.loads(staff_file.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        sys.exit(f"{staff_file.name} を読み込めません（JSONの書式エラー）: {e}\n  make_staff.py をもう一度実行して作り直してください")
+    lst = sd.get("staff") if isinstance(sd, dict) else sd
+    if not isinstance(lst, list):
+        sys.exit(f"{staff_file.name} の形式が違います（\"staff\" に一覧が入っているはずです）。make_staff.py で作り直してください")
+    meta_cfg["staffroll"]["staff"] = [x for x in lst if isinstance(x, dict) and str(x.get("name", "")).strip()]
+    print(f"スタッフ: {len(meta_cfg['staffroll']['staff'])}人を {staff_file.name} から読み込みました")
+elif args.staff != "staff.json":
+    sys.exit(f"スタッフ用のファイルが見つかりません: {staff_file}")
+
 out = {"_readme": "このファイルは make_tracks.py が実行のたびに自動で作り直します（直接編集しないでください）。設定は config.json に書きます。",
-       **cfg, "gifs": gifs, "discs": out_discs}
+       **meta_cfg, "gifs": gifs, "discs": out_discs}
 META.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 if not args.no_config:                                       # 設定（編集OKの項目だけ）を config.json に保存
     SET_KEYS = ("file", "name", "composer", "arrange", "original", "original_song")
