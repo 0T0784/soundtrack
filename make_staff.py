@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
-"""スタッフロールのスタッフ一覧を、staff.json に出力します。
+"""スタッフロールのスタッフ一覧と YouTube の URL を、staff.json に出力します。
 
 ■ 使い方
-  1. 下の STAFF にスタッフを書く（上から順に表示される）
+  1. 下の YOUTUBE にスタッフロール動画の URL、STAFF にスタッフを書く（スタッフは上から順に表示される）
   2. python make_staff.py を実行 → staff.json ができる
   3. python make_tracks.py を実行 → staff.json の内容が meta.json の「スタッフロール」に入る
-     （staff.json があるときは、config.json に書いたスタッフより staff.json が優先される）
+     （staff.json があるときは、config.json に書いたスタッフ・YouTube より staff.json が優先される）
   ※ GitHub Pages の deploy.yml は、公開のたびに make_staff.py → make_tracks.py の順に自動で実行します。
     staff.json は自動で作られるので、リポジトリには置かず、.gitignore に「staff.json」と1行書いておくとよい。
+
+■ YouTube の書き方（YOUTUBE）
+  スタッフロール動画のリンク（watch?v= 形式 / youtu.be/ 形式 / embed・shorts・live 形式）か、動画ID（11文字）を入れる。
+  ・入れると、スタッフロールのタブで mp4 の代わりに YouTube の動画が表示される（下のプレイヤーのボタンで再生・シークもできる）
+  ・空（""）にすると何も出力しない → config.json の youtube、それも空なら staffroll.mp4 が使われる
+  ・make_tracks.py に --youtube URL を付けて実行したときは、そちらが優先される
 
 ■ 書き方（STAFF の1人分）
   name … 名前（必須）
@@ -26,6 +32,11 @@ import argparse, json, re, sys
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent        # make_tracks.py と同じフォルダ
+
+# ============================================================
+# ★ スタッフロール動画の YouTube（リンクまたは動画ID。使わないときは ""）
+# ============================================================
+YOUTUBE = "https://www.youtube.com/watch?v=8vqyJqJLyZs"
 
 # ============================================================
 # ★ ここにスタッフを書く（上から順に表示される）
@@ -126,9 +137,25 @@ for i, s in enumerate(STAFF, 1):
     if icon: one["icon"] = icon
     staff.append(one)
 
-out = {"_readme": "このファイルは make_staff.py が自動で作ります（直接編集しないでください）。スタッフは make_staff.py の STAFF に書きます。",
-       "staff": staff}
+def yt_id(u):   # プレイヤー（HTML）と同じ読み取り方: 動画ID / youtu.be / watch?v= / embed・shorts・live・v
+    u = u.strip()
+    if re.fullmatch(r"[\w-]{11}", u):
+        return u
+    m = (re.match(r"https?://(?:[\w-]+\.)*youtu\.be/([\w-]{11})", u)
+         or re.search(r"[?&]v=([\w-]{11})", u)
+         or re.search(r"/(?:embed|shorts|live|v)/([\w-]{11})", u))
+    return m.group(1) if m else ""
+
+youtube = str(YOUTUBE or "").strip()
+if youtube and not yt_id(youtube):
+    print(f"※ YOUTUBE の URL から動画IDを読み取れません（{youtube}）。この項目は出力しません。watch?v=… 形式か youtu.be/… 形式で書いてください")
+    youtube, problems = "", problems + 1
+
+out = {"_readme": "このファイルは make_staff.py が自動で作ります（直接編集しないでください）。スタッフと YouTube は make_staff.py に書きます。"}
+if youtube:
+    out["youtube"] = youtube
+out["staff"] = staff
 out_path.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-print(f"{out_path.name} を出力しました: スタッフ {len(staff)} 人" + (f"（確認が必要な項目 {problems} 件）" if problems else ""))
+print(f"{out_path.name} を出力しました: スタッフ {len(staff)} 人" + (f" / YouTube（動画ID: {yt_id(youtube)}）" if youtube else " / YouTube なし") + (f"（確認が必要な項目 {problems} 件）" if problems else ""))
 for s in staff:
     print(f"  ・{s['name']}" + (f"  — {s['role']}" if s.get("role") else ""))

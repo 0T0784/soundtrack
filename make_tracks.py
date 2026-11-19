@@ -147,7 +147,8 @@
       1. make_staff.py の STAFF にスタッフを書く（name / role / text / icon。書き方は make_staff.py の冒頭を参照）
       2. python make_staff.py → staff.json ができる
       3. python make_tracks.py → staff.json の内容が meta.json の "staffroll" の "staff" に入る（HTML はこれまでどおり meta.json を読むだけ）
-  ・staff.json があるときは、config.json に書いたスタッフより staff.json が優先される（config.json には書き込まれない）
+  ・スタッフロール動画の YouTube の URL も make_staff.py の YOUTUBE に書ける（staff.json 経由で meta.json の "youtube" に入る）
+  ・staff.json があるときは、config.json に書いたスタッフ・YouTube より staff.json が優先される（config.json には書き込まれない）。--youtube 指定時はそちらが最優先
   ・staff.json が無ければ、これまでどおり config.json の "staff" が使われる
   ・make_staff.py を直したら make_tracks.py の前に毎回 make_staff.py を実行する（GitHub の deploy.yml は自動で両方実行する）
   ・オプション: --staff 別名.json（読み込む JSON を変える）
@@ -633,6 +634,10 @@ if staff_file.is_file():
         sys.exit(f"{staff_file.name} の形式が違います（\"staff\" に一覧が入っているはずです）。make_staff.py で作り直してください")
     meta_cfg["staffroll"]["staff"] = [x for x in lst if isinstance(x, dict) and str(x.get("name", "")).strip()]
     print(f"スタッフ: {len(meta_cfg['staffroll']['staff'])}人を {staff_file.name} から読み込みました")
+    yt = str(sd.get("youtube", "")).strip() if isinstance(sd, dict) else ""
+    if yt and args.youtube is None:                  # --youtube を指定したときは、そちらが優先
+        meta_cfg["staffroll"]["youtube"] = yt
+        print(f"スタッフロール: YouTube（{yt}）を {staff_file.name} から読み込みました")
 elif args.staff != "staff.json":
     sys.exit(f"スタッフ用のファイルが見つかりません: {staff_file}")
 
