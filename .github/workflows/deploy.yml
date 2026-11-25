@@ -115,14 +115,25 @@ jobs:
           sys.exit(0)
           PY
 
+  
+      # GitHub Pagesの設定
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
+      # 公開ファイルをArtifactとしてアップロード
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
+      # Artifactの情報をログに表示
+      - name: Verify Pages artifact
+        run: |
+          echo "Pages artifact upload completed."
+          echo "Workflow run ID: $GITHUB_RUN_ID"
+          echo "Commit: $GITHUB_SHA"
+
+      # GitHub Pagesへデプロイ
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
