@@ -221,7 +221,7 @@ DEFAULT_CFG = {
     "album": "牛屎院風土記　〜 Unknown Chronicles of Hidden Land.",
     "default_composer": "0to784",
     "images": {"emblem": "", "cover": ""},
-    "staffroll": {"label": "Staff Roll", "video": "staffroll.mp4", "youtube": "", "poster": "", "icon": "", "staff": []},
+    "staffroll": {"label": "Staff Roll", "video": "staffroll.mp4", "youtube": "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "poster": "", "icon": "", "staff": []},
     "omake": {"label": "おまけ", "url": "https://0t0784.github.io/blog/post.html?p=2026-11-20-private-ST-01-omake", "sound": "audio/trophy.mp3",
               "title": "スタッフロール完走", "text": "左下のアイコンから「おまけ」を読めます", "icon": ""},
 }
